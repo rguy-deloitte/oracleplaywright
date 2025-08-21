@@ -6,8 +6,8 @@ import { test, type Page } from '@playwright/test';
 import * as xlsx from 'xlsx';
 const path = require('path');
 
-const userName = 'ganeshganapatipushpa@deloitte.co.uk';
-const password = 'Deloitte123';
+const userName = '';
+const password = '';
 const getDataFromExcelFile = true;  // Set to true to read data from Excel file
 let setupData: any[] = [];          // Data items from the Setup Excel sheet
 let loopData: any[][] = [];         // Data items from the Loop Excel sheet
