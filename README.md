@@ -2,13 +2,12 @@
 
 [Get started with Playwright](https://playwright.dev/)
 
-Run tests using:
+## Run tests using:
 `npx playwright test` - Automated mode  
 `npx playwright test --ui` - UI mode  
 `npx playwright test --ui --debug` - UI Interactive mode  
 
-#ToDo
-
+# ToDo
 Playwright
 - config file .. appConfig.json
 - input file .. Madhu -- periods, ledger ..any other inputs for scripts (x)
