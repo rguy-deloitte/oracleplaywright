@@ -2,7 +2,7 @@
 
 [Get started with Playwright](https://playwright.dev/) 
 
-To get started with Oracle Testing using data within Excel, take a look at `tests/example-oracle-with-excel-data.spec.ts`
+To get started with Oracle Testing using data within Excel, take a look at: `tests/example-oracle-with-excel-data.spec.ts`
 
 ## Run tests using:
 `npx playwright test` - Automated mode  

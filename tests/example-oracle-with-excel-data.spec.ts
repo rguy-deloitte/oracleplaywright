@@ -1,5 +1,5 @@
 // This Example test script automates the scheduling of a new process in Oracle Fusion using Playwright and Excel data.
-// Ensure you have the required Excel file in the correct directory: tests/excel-data-files/example-oracle-with-excel-data.xlsx
+// Ensure you have the required Excel file in the correct directory: /excel-data-files/example-oracle-with-excel-data.xlsx
 // Run using: npx playwright test tests/example-oracle-with-excel-data.spec.ts
 
 import { test, type Page } from '@playwright/test';
