@@ -1,10 +1,8 @@
 // This Example test script automates the scheduling of a new process in Oracle Fusion using Playwright and Excel data.
-// Ensure you have the required Excel file in the correct directory: /excel-data-files/example-oracle-with-excel-data.xlsx
+// Ensure you have the required Excel file in the correct directory: excel-data-files/example-oracle-with-excel-data.xlsx
 // Run using: npx playwright test tests/example-oracle-with-excel-data.spec.ts
-
 import { test, type Page } from '@playwright/test';
-import * as xlsx from 'xlsx';
-const path = require('path');
+import { ExcelService } from '../src/services/excel.service';
 
 const userName = '';
 const password = '';
@@ -13,47 +11,14 @@ let setupData: any[] = [];          // Data items from the Setup Excel sheet
 let loopData: any[][] = [];         // Data items from the Loop Excel sheet
 const skipRatherThanSubmit = true;  // Set to true to skip submission and just take screenshots
 
-class ExcelService {
-    readExcelData() {
-        const setupDataSheetName = 'Setup';
-        const loopDataSheetName = 'Loop';
-        let setupData: any[] = [];    // Data items from the Setup sheet
-        let loopData: any[][] = [];   // Data items from the Loop sheet
-
-        if (getDataFromExcelFile) {
-            const sourceDataXslxFilename = path.basename(__filename, '.spec.ts') + '.xlsx';
-            const sourceDataXslxFilePath = path.join(__dirname, '..', 'excel-data-files', sourceDataXslxFilename);
-
-            // check if file exists
-            const fs = require('fs');
-            if (!fs.existsSync(sourceDataXslxFilePath)) {
-                console.error(`Error: The Excel file ${sourceDataXslxFilePath} does not exist.`);
-                process.exit(1);
-            }
-
-            const workbook = xlsx.readFile(sourceDataXslxFilePath);
-            setupData = (xlsx.utils.sheet_to_json(workbook.Sheets[setupDataSheetName], { raw: false, header: 1 }) as any[][]).map((item: any[]) => {return item[1]});
-            loopData = (xlsx.utils.sheet_to_json(workbook.Sheets[loopDataSheetName], { raw: false, header: 1 }) as any[][]).map((item: any[]) => {return [item[0], item[1]]});
-            if (setupData.length === 0 || loopData.length === 0) {
-                console.error(`Error with format of Excel file: ${sourceDataXslxFilePath}`);
-                process.exit(1);
-            }        
-        }
-        return { setupData, loopData };
-    }
-}
-
 test.describe.configure({ mode: 'serial' });
 
 test('Oracle With Excel Data Example', async ({ page, request }, testInfo) => {
-
+  test.slow();
   // Load data from Excel file if required
   if (getDataFromExcelFile) {
-      const excelService = new ExcelService();
-      ({ setupData, loopData } = excelService.readExcelData());
+      ({ setupData, loopData } = ExcelService.readExcelData(__filename));
   }
-
-  test.slow();
 
   // Login to Oracle Fusion and navigate to Scheduled Processes
   await test.step('Login into Oracle Fusion', async () => {
