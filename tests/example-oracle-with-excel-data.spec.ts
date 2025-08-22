@@ -50,11 +50,11 @@ test('Oracle With Excel Data Example', async ({ page, request }, testInfo) => {
         await page.getByRole('combobox', { name: 'Balancing Segment' }).press('Enter');
         await page.waitForTimeout(1000);
         if (skipRatherThanSubmit) {
-            await testInfo.attach(`${loopData[i][0]} Final Screen...`, { body: await page.screenshot(), contentType: 'image/png' });
+            await testInfo.attach(`${loopData[i][0]} Final Screen (cancelled)...`, { body: await page.screenshot(), contentType: 'image/png' });
             await page.getByRole('button', { name: 'Cancel', exact: true }).click();
         } else {
             await page.getByRole('button', { name: 'Submit', exact: true }).click();
-            await testInfo.attach(`${loopData[i][0]} Final Screen...`, { body: await page.screenshot(), contentType: 'image/png' });
+            await testInfo.attach(`${loopData[i][0]} Final Screen (submitted)...`, { body: await page.screenshot(), contentType: 'image/png' });
             await page.getByRole('button', { name: 'OK' }).click();
             await page.waitForTimeout(60000);
         }
