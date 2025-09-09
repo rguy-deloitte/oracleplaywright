@@ -1,4 +1,7 @@
 import { test } from '@playwright/test';
+
+const userName = 'tbc';
+const password = 'tbc';
  
 test('Post Manual Journal', async ({ page, request }, testInfo) => {
     test.slow();
@@ -7,10 +10,10 @@ test('Post Manual Journal', async ({ page, request }, testInfo) => {
      await test.step('Login into Oracle Fusion', async () => {
         await page.goto('https://secure-web.cisco.com/13kyZjA_Y3iSzSkdRg0vwA-wjJVTWiIXSFZJKBMYrzf1ENqKvFU6Duyq_7DEm1XZy8fxU9XdeTYk5H0Y1HHnu2ttNTUDIq709NOzeRPIGGBi7aK-FOJqeRhinvRZ1-Qoi5hRJZx6UFeEpLpqwmtD8GXy0bV0LOQT6dbRztH8m4iuG8y5lngWxgNfrc7U-XVKxW5f9AFWSN8kacUEotYxKhNLvkmAdctAz2sPYxN6eqzaaKdZS6LjfqmnrSQcu8YQYhPFJGa7zLtoL8yBswd9FXzkhKlvxdlIyNgbf-UVC3axlO2NjOpmn240Nylju1otb0acLjTMhGzgWydj73xXcrA/https%3A%2F%2Fiahdme-test.fa.ocs.oraclecloud.com%2FfscmUI%2Ffaces%2FFuseOverview');
         await page.getByRole('textbox', { name: 'User ID' }).click();
-        await page.getByRole('textbox', { name: 'User ID' }).fill('serv user email');
+        await page.getByRole('textbox', { name: 'User ID' }).fill(userName);
         await testInfo.attach('Login_UserID', { body: await page.screenshot(), contentType: 'image/png' });
         await page.getByRole('textbox', { name: 'Password' }).click();
-        await page.getByRole('textbox', { name: 'Password' }).fill('serv user password');
+        await page.getByRole('textbox', { name: 'Password' }).fill(password);
         await testInfo.attach('Login_Password', { body: await page.screenshot(), contentType: 'image/png' });
         await page.getByRole('button', { name: 'Sign In' }).click();
         await testInfo.attach('Login_to_Oracle', { body: await page.screenshot(), contentType: 'image/png' });
