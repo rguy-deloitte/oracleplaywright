@@ -1,5 +1,10 @@
 # oracleplaywright
 
+## Before running any tests, do the following:
+
+- Configure `LOGINURL`, `USERNAME`, `PASSWORD`, `APIBASEURL` & `URLCREDENTIALS` as required in your `./env` file [see](https://playwright.dev/docs/test-parameterize#env-files) 
+
+
 [Get started with Playwright](https://playwright.dev/) 
 
 To get started with Oracle Testing using data within Excel, take a look at: `tests/example-oracle-with-excel-data.spec.ts`

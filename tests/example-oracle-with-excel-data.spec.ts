@@ -1,66 +1,55 @@
 // This Example test script automates the scheduling of a new process in Oracle Fusion using Playwright and Excel data.
 // Ensure you have the required Excel file in the correct directory: excel-data-files/example-oracle-with-excel-data.xlsx
 // Run using: npx playwright test tests/example-oracle-with-excel-data.spec.ts
-import { test, expect, type Page } from '@playwright/test';
+import { test } from '@playwright/test';
 import { ExcelService } from '../src/services/excel.service';
+import dotenv from 'dotenv';
 import path from 'path';
 
-const userName = 'tbc';
-const password = 'tbc';
-const getDataFromExcelFile = true;  // Set to true to read data from Excel file
-const generateResultsExcelFile = true;
-let setupData: any[] = [];          // Data items from the Setup Excel sheet
-let loopData: any[][] = [];         // Data items from the Loop Excel sheet
-const skipRatherThanSubmit = false;  // Set to true to skip submission and just take screenshots
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
+
 let testLoopStartTime: Date = new Date(), testLoopEndTime: Date = new Date();
-
-const apiBaseUrl = 'tbc';
-const urlCredentials = 'tbc: base 64 encoded username and pwd';     // See: https://docs.oracle.com/en/cloud/saas/financials/25c/farfa/Quick_Start.html
-
-// Request context is reused by all tests in the file.
+const authFile = path.join(__dirname, '../.auth/auth-state.json');
 let apiContext;
 
-const authFile = path.join(__dirname, '../auth-state.json');
+const getDataFromExcelFile = true;      // Set to true to read data from Excel file
+const generateResultsExcelFile = true;  // Set to true to write results to results excel file (filename *-results-YYYYMMDD-hhmmss.xlsx)
+let setupData: any[] = [];              // Data items from the Setup Excel sheet
+let loopData: any[][] = [];             // Data items from the Loop Excel sheet
+const skipRatherThanSubmit = false;     // Set to true to skip submission and just take screenshots
+
+test.use({ storageState: authFile });
 
 test.beforeAll(async ({ playwright }) => {
-  apiContext = await playwright.request.newContext({
-    // All requests we send go to this API endpoint.
-    baseURL: apiBaseUrl,
-    extraHTTPHeaders: {
-        'Authorization': `Basic ${urlCredentials}`,
-        'Content-Type': 'application/vnd.oracle.adf.resourcecollection+json',
-    },
-    storageState: authFile,
-  });
-
   // Load data from Excel file & prepare results file if required
   if (getDataFromExcelFile) ({ setupData, loopData } = ExcelService.readExcelData(__filename));
   if (generateResultsExcelFile) ExcelService.writeResultsHeaderRow(['ACCOUNTING PERIOD', 'BALANCING SEGMENT', 'REQUESTID', 'STARTTIME', 'ENDTIME', 'RESULT']);
+
+  // Setup Oracle API. See: https://docs.oracle.com/en/cloud/
+  apiContext = await playwright.request.newContext({
+    baseURL: process.env.APIBASEURL,
+    extraHTTPHeaders: {
+        'Authorization': `Basic ${process.env.URLCREDENTIALS}`,
+        'Content-Type': 'application/vnd.oracle.adf.resourcecollection+json',
+    },
+  });
 });
 
 test.afterAll(async ({ }) => {
-  // Dispose all responses.
   await apiContext.dispose();
   if (generateResultsExcelFile) ExcelService.save();
 });
 
-
 test.describe.configure({ mode: 'serial' });
 
-test('Oracle With Excel Data Example', async ({ page, context }, testInfo) => {
+test('Oracle With Excel Data Example', async ({ page }, testInfo) => {
   test.slow();
 
-  // Login to Oracle Fusion and navigate to Scheduled Processes
+  // Navigate to Scheduled Processes
   await test.step('Login into Oracle Fusion', async () => {
       await page.goto(setupData[0]);
 
-      // Login
-      await page.getByRole('textbox', { name: 'User ID' }).click();
-      await page.getByRole('textbox', { name: 'User ID' }).fill(userName);
-      await page.getByRole('textbox', { name: 'Password' }).click();
-      await page.getByRole('textbox', { name: 'Password' }).fill(password);
-      await page.getByRole('button', { name: 'Sign In' }).click();
-
+      // *** Note *** Login handled in auth.setup.ts
       // Navigate to where the process begins
       await page.getByRole('link', { name: 'Tools' }).click();
       await page.getByTitle('Scheduled Processes').click();
@@ -68,12 +57,11 @@ test('Oracle With Excel Data Example', async ({ page, context }, testInfo) => {
       await page.getByRole('combobox', { name: 'Name' }).click();
       await page.getByRole('combobox', { name: 'Name' }).fill(setupData[1]);
       await page.getByRole('combobox', { name: 'Name' }).press('Enter');
-
   });
 
   // Schedule New Process
-  for (let i = 1; i < loopData.length; i++) {
-      await test.step(`Process: ${loopData[i][0]}`, async () => {
+  for (let row = 1; row < loopData.length; row++) {
+      await test.step(`Process: ${loopData[row][0]}`, async () => {
         testLoopStartTime = new Date();
 
         await page.getByRole('button', { name: 'OK' }).click();
@@ -81,20 +69,20 @@ test('Oracle With Excel Data Example', async ({ page, context }, testInfo) => {
         await page.getByLabel('Data Access Set').selectOption(setupData[2]);
         await page.getByLabel('Ledger or Ledger Set').selectOption(setupData[3]);
         await page.getByLabel('Target Currency').selectOption(setupData[4]);
-        await page.getByLabel('Accounting Period').selectOption(loopData[i][0]);
+        await page.getByLabel('Accounting Period').selectOption(loopData[row][0]);
         await page.getByRole('combobox', { name: 'Balancing Segment' }).click();
-        await page.getByRole('combobox', { name: 'Balancing Segment' }).fill(loopData[i][1]);
+        await page.getByRole('combobox', { name: 'Balancing Segment' }).fill(loopData[row][1]);
         await page.getByRole('combobox', { name: 'Balancing Segment' }).press('Enter');
         await page.waitForTimeout(1000);
         if (skipRatherThanSubmit) {
-            await testInfo.attach(`${loopData[i][0]} Final Screen (cancelled)...`, { body: await page.screenshot(), contentType: 'image/png' });
+            await testInfo.attach(`${loopData[row][0]} Final Screen (cancelled)...`, { body: await page.screenshot(), contentType: 'image/png' });
             await page.getByRole('button', { name: 'Cancel', exact: true }).click();
         } else {
             await page.getByRole('button', { name: 'Submit', exact: true }).click();
 
             const processSubmittedMessage = await page.getByText(/Process \d+ was submitted\./).textContent();
             const processNumber = processSubmittedMessage?.match(/^Process (\d+) was submitted\.$/)?.[1];
-            await testInfo.attach(`${loopData[i][0]} Final Screen (submitted)...`, { body: await page.screenshot(), contentType: 'image/png' });
+            await testInfo.attach(`${loopData[row][0]} Final Screen (submitted)...`, { body: await page.screenshot(), contentType: 'image/png' });
             await page.getByRole('button', { name: 'OK' }).click();
 
             if (processNumber) {
@@ -108,7 +96,7 @@ test('Oracle With Excel Data Example', async ({ page, context }, testInfo) => {
               } while (!['SUCCEEDED', 'CANCELED', 'ERROR', 'ERROR MANUAL RECOVERY', 'EXPIRED', 'FINISHED', 'HOLD', 'VALIDATION FAILED', 'WARNING'].includes(jobRequestStatus));  // See: https://docs.oracle.com/en/cloud/saas/applications-common/25c/oacpr/statuses-of-scheduled-processes.html
 
               testLoopEndTime = new Date();
-              ExcelService.writeResultsResultRow([loopData[i][0], loopData[i][1], processNumber, testLoopStartTime, testLoopEndTime, jobRequestStatus]);
+              ExcelService.writeResultsResultRow([loopData[row][0], loopData[row][1], processNumber, testLoopStartTime, testLoopEndTime, jobRequestStatus]);
 
             } else {
               console.log('Process number not found in the submission confirmation message:', processSubmittedMessage);
@@ -119,3 +107,4 @@ test('Oracle With Excel Data Example', async ({ page, context }, testInfo) => {
       });
     }
 });
+
