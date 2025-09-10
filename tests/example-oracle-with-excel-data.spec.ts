@@ -25,7 +25,7 @@ test.beforeAll(async ({ playwright }) => {
   if (getDataFromExcelFile) ({ setupData, loopData } = ExcelService.readExcelData(__filename));
   if (generateResultsExcelFile) ExcelService.writeResultsHeaderRow(['ACCOUNTING PERIOD', 'BALANCING SEGMENT', 'REQUESTID', 'STARTTIME', 'ENDTIME', 'RESULT']);
 
-  // Setup Oracle API. See: https://docs.oracle.com/en/cloud/
+  // Setup Oracle API. See: https://docs.oracle.com/en/cloud/saas/financials/25c/farfa/Quick_Start.html
   apiContext = await playwright.request.newContext({
     baseURL: process.env.APIBASEURL,
     extraHTTPHeaders: {

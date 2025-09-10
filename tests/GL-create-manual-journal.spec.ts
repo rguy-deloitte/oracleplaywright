@@ -1,28 +1,40 @@
+// This test script ... (does what?)
+// If reading data from Excel, ensure you have the required Excel file in the correct directory: excel-data-files/GL-create-manual-journal.xlsx
+// Run using: npx playwright test tests/GL-create-manual-journal.spec.ts
 import { test } from '@playwright/test';
+import { ExcelService } from '../src/services/excel.service';
+import dotenv from 'dotenv';
+import path from 'path';
 
-const userName = 'tbc';
-const password = 'tbc';
- 
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
+let testLoopStartTime: Date = new Date(), testLoopEndTime: Date = new Date();
+const authFile = path.join(__dirname, '../.auth/auth-state.json');
+
+const getDataFromExcelFile = false;         // Set to true to read data from Excel file
+const generateResultsExcelFile = false;     // Set to true to write results to results excel file (filename *-results-YYYYMMDD-hhmmss.xlsx)
+let setupData: any[] = [];                  // Data items from the Setup Excel sheet
+let loopData: any[][] = [];                 // Data items from the Loop Excel sheet
+const skipRatherThanSubmit = true;          // Set to true to skip submission and just take screenshots
+
+test.use({ storageState: authFile });
+
+test.beforeAll(async ({ playwright }) => {
+  // Load data from Excel file & prepare results file if required
+  if (getDataFromExcelFile) ({ setupData, loopData } = ExcelService.readExcelData(__filename));
+  if (generateResultsExcelFile) ExcelService.writeResultsHeaderRow(['ACCOUNTING PERIOD', 'BALANCING SEGMENT', 'REQUESTID', 'STARTTIME', 'ENDTIME', 'RESULT']);
+});
+
+test.afterAll(async ({ }) => {
+  if (generateResultsExcelFile) ExcelService.save();
+});
+
 test('Post Manual Journal', async ({ page, request }, testInfo) => {
     test.slow();
- 
-    // Login to Oracle Fusion
-     await test.step('Login into Oracle Fusion', async () => {
-        await page.goto('https://secure-web.cisco.com/13kyZjA_Y3iSzSkdRg0vwA-wjJVTWiIXSFZJKBMYrzf1ENqKvFU6Duyq_7DEm1XZy8fxU9XdeTYk5H0Y1HHnu2ttNTUDIq709NOzeRPIGGBi7aK-FOJqeRhinvRZ1-Qoi5hRJZx6UFeEpLpqwmtD8GXy0bV0LOQT6dbRztH8m4iuG8y5lngWxgNfrc7U-XVKxW5f9AFWSN8kacUEotYxKhNLvkmAdctAz2sPYxN6eqzaaKdZS6LjfqmnrSQcu8YQYhPFJGa7zLtoL8yBswd9FXzkhKlvxdlIyNgbf-UVC3axlO2NjOpmn240Nylju1otb0acLjTMhGzgWydj73xXcrA/https%3A%2F%2Fiahdme-test.fa.ocs.oraclecloud.com%2FfscmUI%2Ffaces%2FFuseOverview');
-        await page.getByRole('textbox', { name: 'User ID' }).click();
-        await page.getByRole('textbox', { name: 'User ID' }).fill(userName);
-        await testInfo.attach('Login_UserID', { body: await page.screenshot(), contentType: 'image/png' });
-        await page.getByRole('textbox', { name: 'Password' }).click();
-        await page.getByRole('textbox', { name: 'Password' }).fill(password);
-        await testInfo.attach('Login_Password', { body: await page.screenshot(), contentType: 'image/png' });
-        await page.getByRole('button', { name: 'Sign In' }).click();
-        await testInfo.attach('Login_to_Oracle', { body: await page.screenshot(), contentType: 'image/png' });
-    });
- 
-    //Insert login function from a shared library
- 
+    // *** Note *** Login handled in auth.setup.ts
+
     // Access the Oracle Fusion Home Page
     await test.step('Access Home Page', async () => {
+        await page.goto('https://secure-web.cisco.com/13kyZjA_Y3iSzSkdRg0vwA-wjJVTWiIXSFZJKBMYrzf1ENqKvFU6Duyq_7DEm1XZy8fxU9XdeTYk5H0Y1HHnu2ttNTUDIq709NOzeRPIGGBi7aK-FOJqeRhinvRZ1-Qoi5hRJZx6UFeEpLpqwmtD8GXy0bV0LOQT6dbRztH8m4iuG8y5lngWxgNfrc7U-XVKxW5f9AFWSN8kacUEotYxKhNLvkmAdctAz2sPYxN6eqzaaKdZS6LjfqmnrSQcu8YQYhPFJGa7zLtoL8yBswd9FXzkhKlvxdlIyNgbf-UVC3axlO2NjOpmn240Nylju1otb0acLjTMhGzgWydj73xXcrA/https%3A%2F%2Fiahdme-test.fa.ocs.oraclecloud.com%2FfscmUI%2Ffaces%2FFuseOverview');
         await testInfo.attach('Access_Home_Page', { body: await page.screenshot(), contentType: 'image/png' });
     });
  

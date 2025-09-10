@@ -7,5 +7,5 @@ node_modules/
 /blob-report/
 /playwright/.cache/
 /.auth/
-.env
+*.env*
 /excel-data-files/*results*
