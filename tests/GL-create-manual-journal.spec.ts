@@ -34,7 +34,7 @@ test('Post Manual Journal', async ({ page, request }, testInfo) => {
 
     // Access the Oracle Fusion Home Page
     await test.step('Access Home Page', async () => {
-        await page.goto('https://secure-web.cisco.com/13kyZjA_Y3iSzSkdRg0vwA-wjJVTWiIXSFZJKBMYrzf1ENqKvFU6Duyq_7DEm1XZy8fxU9XdeTYk5H0Y1HHnu2ttNTUDIq709NOzeRPIGGBi7aK-FOJqeRhinvRZ1-Qoi5hRJZx6UFeEpLpqwmtD8GXy0bV0LOQT6dbRztH8m4iuG8y5lngWxgNfrc7U-XVKxW5f9AFWSN8kacUEotYxKhNLvkmAdctAz2sPYxN6eqzaaKdZS6LjfqmnrSQcu8YQYhPFJGa7zLtoL8yBswd9FXzkhKlvxdlIyNgbf-UVC3axlO2NjOpmn240Nylju1otb0acLjTMhGzgWydj73xXcrA/https%3A%2F%2Fiahdme-test.fa.ocs.oraclecloud.com%2FfscmUI%2Ffaces%2FFuseOverview');
+        await page.goto('https://eiiv-dev6.fa.us6.oraclecloud.com/fscmUI/faces/FuseWelcome');
         await testInfo.attach('Access_Home_Page', { body: await page.screenshot(), contentType: 'image/png' });
     });
  
@@ -51,5 +51,59 @@ test('Post Manual Journal', async ({ page, request }, testInfo) => {
         await page.getByRole('link', { name: 'Create Journal', exact: true }).click();
         await testInfo.attach('Select Tasks and Create Journal', { body: await page.screenshot(), contentType: 'image/png' });
     });
- 
+     //populate journal  
+    await test.step('Populate Journal', async () => {
+        await page.getByRole('textbox', { name: 'Journal Batch' }).fill('Test Journal Batch');
+        await page.getByRole('textbox', { name: 'Accounting Period' }).fill('Apr-26');
+        await page.getByRole('textbox', { name: 'Journal', exact: true }).fill('Test Journal');
+        await page.getByRole('textbox', { name: 'Category' }).fill('Work In Progress');
+        await testInfo.attach('Populate Journal Information', { body: await page.screenshot(), contentType: 'image/png' });
+        
+        //select account for journal line 1
+
+        await page.getByRole('textbox', { name: 'Journal', exact: true }).click();
+        await page.getByRole('textbox', { name: 'Journal', exact: true }).fill('Test Journal');
+        await testInfo.attach('Populate Journal Batch', { body: await page.screenshot(), contentType: 'image/png' });
+
+        //await page.getByRole('combobox', { name: 'Accounting Period' }).locator('a').click();
+        await page.getByRole('combobox', { name: 'Accounting Period' }).click();
+        await page.getByRole('gridcell', { name: 'Feb-24' }).click();
+        
+
+        //await page.getByRole('combobox', { name: 'Accounting Period' }).click();
+        //await page.getByRole('combobox', { name: 'Accounting Period' }).fill('Feb-24');
+        //await page.getByRole('combobox', { name: 'Accounting Period' }).press('Enter');
+
+        await testInfo.attach('Input accounting Period', { body: await page.screenshot(), contentType: 'image/png' });
+        
+        //Select Account
+        await page.getByLabel('Select Journal').click();
+        await page.getByRole('link', { name: 'Select: Account' }).click();
+        await page.getByRole('button', { name: 'Search' }).click();
+        await page.getByRole('cell', { name: '999999' }).first().click();
+        await page.getByRole('button', { name: 'OK' }).click();
+        await testInfo.attach('Select Journal Line Account', { body: await page.screenshot(), contentType: 'image/png' });
+
+        //Populate Journal Lines 
+        await page.getByRole('textbox', { name: 'Entered Debit' }).click();
+        await page.getByRole('textbox', { name: 'Entered Debit' }).fill('10000');
+        await page.getByRole('textbox', { name: 'Description Mandatory' }).click();
+        await page.getByRole('textbox', { name: 'Description Mandatory' }).fill('Test');
+        await testInfo.attach('Populate Journal Line', { body: await page.screenshot(), contentType: 'image/png' });
+
+        await page.getByRole('link', { name: 'Select: Account' }).click();
+        await page.getByRole('button', { name: 'Search' }).click();
+        await page.locator('[id="__af_Z_window"]').getByText('8790000000').click();
+        await page.getByRole('button', { name: 'OK' }).click();
+        await page.getByLabel('Select Journal').click();
+        await page.getByRole('button', { name: 'OK' }).click();
+        await page.getByRole('textbox', { name: 'Entered Credit' }).click();
+        await page.getByRole('textbox', { name: 'Entered Credit' }).fill('10000');
+
+        await testInfo.attach('Journal Saved', { body: await page.screenshot(), contentType: 'image/png' });
+        await page.getByRole('link', { name: 'Post', exact: true }).click();
+        await testInfo.attach('Journal Posted', { body: await page.screenshot(), contentType: 'image/png' });
+
+        });
+
 });
