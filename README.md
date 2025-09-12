@@ -2,7 +2,7 @@
 
 ## Before running any tests, do the following:
 
-- Configure `LOGINURL`, `USERNAME`, `PASSWORD`, `APIBASEURL` & `URLCREDENTIALS` as required in your `./env` file [see](https://playwright.dev/docs/test-parameterize#env-files) 
+- Configure `LOGINURL`, `ORACLEUSERNAME`, `ORACLEPASSWORD`, `APIBASEURL` & `URLCREDENTIALS` as required in your `./env` file [see](https://playwright.dev/docs/test-parameterize#env-files) 
 
 
 [Get started with Playwright](https://playwright.dev/) 

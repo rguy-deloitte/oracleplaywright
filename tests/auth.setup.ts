@@ -5,8 +5,8 @@ import path from 'path';
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 const authFile = path.join(__dirname, '../.auth/auth-state.json');
 const loginUrl = process.env.LOGINURL!;
-const userName = process.env.USERNAME!;
-const password = process.env.PASSWORD!;
+const userName = process.env.ORACLEUSERNAME!;
+const password = process.env.ORACLEPASSWORD!;
 
 setup('authenticate', async ({ page }) => {
     // https://playwright.dev/docs/auth
