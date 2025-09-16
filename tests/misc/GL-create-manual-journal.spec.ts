@@ -1,6 +1,6 @@
 // This test script ... (does what?)
 // If reading data from Excel, ensure you have the required Excel file in the correct directory: excel-data-files/GL-create-manual-journal.xlsx
-// Run using: npx playwright test tests/GL-create-manual-journal.spec.ts
+// Run using: npx playwright test tests/misc/GL-create-manual-journal.spec.ts
 import { test, expect } from '@playwright/test';
 import { ExcelService } from '../../src/services/excel.service';
 import dotenv from 'dotenv';
