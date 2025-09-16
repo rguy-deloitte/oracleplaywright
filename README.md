@@ -1,21 +1,36 @@
 # oracleplaywright
 
-## Before running any tests, do the following:
 
-- Configure `LOGINURL`, `ORACLEUSERNAME`, `ORACLEPASSWORD`, `APIBASEURL` & `URLCREDENTIALS` as required in your `./env` file [see](https://playwright.dev/docs/test-parameterize#env-files) 
+## Requirements
+
+- [Node.js](https://nodejs.org/en)
+- [Visual Studio Code](https://code.visualstudio.com/)
+- Playwright - Create a new repository and follow instructions [here](https://playwright.dev/docs/intro), to get started with Playwright.
+- VS Code Extension - It is recommended to use the Playwright extension for Visual Studio Code, available to set up [here](https://playwright.dev/docs/getting-started-vscode)
 
 
-[Get started with Playwright](https://playwright.dev/) 
+## Setup
+
+Before running any tests, do the following:
+
+- Create a `.env` file in the repository base directory
+- Configure `LOGINURL`, `ORACLEUSERNAME`, `ORACLEPASSWORD`, `APIBASEURL` & `URLCREDENTIALS` as required in your `.env` file [see](https://playwright.dev/docs/test-parameterize#env-files) 
+- Create a `.auth/` directory in the repository base directory, which will contain the authorisation storage state, saved to `auth-state.json`, [see](https://playwright.dev/docs/auth)
+
+
+## Running Tests
 
 To get started with Oracle Testing using data within Excel, take a look at: `tests/example-oracle-with-excel-data.spec.ts`
 
-## Run tests using:
+
+### Run tests using:
 `npx playwright test` - Automated mode  
 `npx playwright test --ui` - UI mode  
 `npx playwright test --ui --debug` - UI Interactive mode  
 
----
+
 ## ToDo
+
 ### Playwright
 - config file .. appConfig.json
 - input file .. Madhu -- periods, ledger ..any other inputs for scripts (x)
