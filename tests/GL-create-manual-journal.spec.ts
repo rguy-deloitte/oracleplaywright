@@ -1,7 +1,7 @@
 // This test script ... (does what?)
 // If reading data from Excel, ensure you have the required Excel file in the correct directory: excel-data-files/GL-create-manual-journal.xlsx
 // Run using: npx playwright test tests/GL-create-manual-journal.spec.ts
-import { test } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 import { ExcelService } from '../src/services/excel.service';
 import dotenv from 'dotenv';
 import path from 'path';
@@ -29,7 +29,7 @@ test.afterAll(async ({ }) => {
 });
 
 test('Post Manual Journal', async ({ page, request }, testInfo) => {
-    test.slow();
+    // test.slow();
     // *** Note *** Login handled in auth.setup.ts
 
     // Access the Oracle Fusion Home Page
@@ -41,7 +41,8 @@ test('Post Manual Journal', async ({ page, request }, testInfo) => {
     //Navigate to Journals
     await test.step('Navigate to General Accounting', async () => {
         await page.getByRole('link', { name: 'General Accounting', exact: true }).click();
-        await page.getByTitle('Journals').locator('path').nth(3).click();
+        // await page.getByTitle('Journals').locator('path').nth(3).click();
+        await page.getByTitle('Journals').click();
         await testInfo.attach('Navigate to Journals Page', { body: await page.screenshot(), contentType: 'image/png' });
     });
  
@@ -51,6 +52,38 @@ test('Post Manual Journal', async ({ page, request }, testInfo) => {
         await page.getByRole('link', { name: 'Create Journal', exact: true }).click();
         await testInfo.attach('Select Tasks and Create Journal', { body: await page.screenshot(), contentType: 'image/png' });
     });
+
+    await expect(page.locator('[summary="Journal Lines"]')).toBeVisible();
+    await expect(page.locator('[summary="Journal Lines"]').getByRole('row')).toHaveCount(2);
+
+    const journalLinesTableRows = await page.locator('[summary="Journal Lines"]').getByRole('row');
+
+
+    const jlAccount = '14010.000000.1012000000.000000.00000.000000.00000.0000.00000.00000';
+
+    await journalLinesTableRows.nth(0).getByRole('textbox', { name: 'Account' }).fill(jlAccount);
+    await journalLinesTableRows.nth(0).getByRole('textbox', { name: 'Entered Debit' }).fill('11.11');
+    await journalLinesTableRows.nth(0).getByRole('textbox', { name: 'Description Mandatory' }).fill('abc');
+    await journalLinesTableRows.nth(0).getByRole('textbox', { name: 'Description Mandatory' }).press('Enter');
+
+    await journalLinesTableRows.nth(1).getByRole('textbox', { name: 'Account' }).fill(jlAccount);
+    await journalLinesTableRows.nth(1).getByRole('textbox', { name: 'Entered Debit' }).fill('22.22');
+    await journalLinesTableRows.nth(1).getByRole('textbox', { name: 'Description Mandatory' }).fill('def');
+    await journalLinesTableRows.nth(1).getByRole('textbox', { name: 'Description Mandatory' }).press('Enter');
+
+    await page.getByRole('button', { name: 'Add Row', exact: true }).click();
+
+    await journalLinesTableRows.nth(2).getByRole('textbox', { name: 'Account' }).fill(jlAccount);
+    await journalLinesTableRows.nth(2).getByRole('textbox', { name: 'Entered Debit' }).fill('33.33');
+    await journalLinesTableRows.nth(2).getByRole('textbox', { name: 'Description Mandatory' }).fill('ghi');
+    await journalLinesTableRows.nth(2).getByRole('textbox', { name: 'Description Mandatory' }).press('Enter');
+
+    await testInfo.attach('Fill a JL Account', { body: await page.screenshot(), contentType: 'image/png' });
+
+    console.log('JLT RowCount x:', await journalLinesTableRows.count());
+    await expect(page.locator('[summary="Journal Lines"]').getByRole('row')).toHaveCount(3);
+
+    /*
      //populate journal  
     await test.step('Populate Journal', async () => {
         await page.getByRole('textbox', { name: 'Journal Batch' }).fill('Test Journal Batch');
@@ -104,6 +137,6 @@ test('Post Manual Journal', async ({ page, request }, testInfo) => {
         await page.getByRole('link', { name: 'Post', exact: true }).click();
         await testInfo.attach('Journal Posted', { body: await page.screenshot(), contentType: 'image/png' });
 
-        });
-
+    });
+    */
 });
