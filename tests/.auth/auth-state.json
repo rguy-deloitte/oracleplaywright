@@ -1,0 +1,189 @@
+{
+  "cookies": [
+    {
+      "name": "JSESSIONID",
+      "value": "C7NRtZPOKwsj-5W29ltYzmIi72C8z0a4fNjMCpYyqiJaaQCHEwfB!1142788577!-1679363622",
+      "domain": "eiiv-dev6.fa.us6.oraclecloud.com",
+      "path": "/fscmUI",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "_WL_AUTHCOOKIE_JSESSIONID",
+      "value": "jt6ZKMF0NP4IlaHLoimr",
+      "domain": "eiiv-dev6.fa.us6.oraclecloud.com",
+      "path": "/fscmUI",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "JSESSIONID",
+      "value": "9AlRtZ85oRTGqSYVxQGnRvc7HOQ73r5lNr7rTzkiORBPBDrX-qcJ!1142788577!-1679363622",
+      "domain": "eiiv-dev6.fa.us6.oraclecloud.com",
+      "path": "/hcmUI",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "_WL_AUTHCOOKIE_JSESSIONID",
+      "value": "QeFdwstU61nLF.MlEr4r",
+      "domain": "eiiv-dev6.fa.us6.oraclecloud.com",
+      "path": "/hcmUI",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "ak_bmsc",
+      "value": "93B6579E9E74DFD96A09463086632602~000000000000000000000000000000~YAAQi3d7XI+GSkSZAQAA4Ii1UR1Br60Ai2wcVr9Pl/5gApxvANkrLfwIgElzPm7yiZhhIYAqK5XwmmJaGswKqBMxkdZZUBD7KGi0mrdyox7EYjGdWbsD3vOiMczIQDN/qEwMeNE/5/kR2JGb339stRhyQm7h2czOZNOzjhihQJCGYY8xWCaVx5aDMJh7qwIsBkQa9ASWz308fP27dox34MOpB6SHGTI+4sNbjtGqNzsetXkkQQF2dCyNWcvGnaMPugOPlKw4LklqTAB2igX2KB14FHiOuQ6my+dgkqsa+a4mmmeY21Pe+Xu/DE7SoxtyaUclglffOz/SeTZM9shtbwVAvZOpXt+JcaJ3jXZmK0WIL8Bt7QV7oHpWmE6mT8l2hO6bx0ZffGou4g==",
+      "domain": ".fa.us6.oraclecloud.com",
+      "path": "/",
+      "expires": 1758019675.377554,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "OAMCancelUrlCookie",
+      "value": "https%3A%2F%2Feiiv-dev6.fa.us6.oraclecloud.com%3A443%2FfscmUI%2Ffaces%2FFuseWelcome",
+      "domain": "eiiv-dev6.fa.us6.oraclecloud.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None",
+      "partitionKey": "https://oraclecloud.com",
+      "_crHasCrossSiteAncestor": false
+    },
+    {
+      "name": "OAMCancelUrlCookie",
+      "value": "https%3A%2F%2Feiiv-dev6.fa.us6.oraclecloud.com%3A443%2FfscmUI%2Ffaces%2FFuseWelcome",
+      "domain": ".fa.us6.oraclecloud.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None",
+      "partitionKey": "https://oraclecloud.com",
+      "_crHasCrossSiteAncestor": false
+    },
+    {
+      "name": "OAM_REQ_COUNT",
+      "value": "VERSION_4~2",
+      "domain": "eiiv-dev6.login.us6.oraclecloud.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "JSESSIONID",
+      "value": "_CNRtY6wwNbchw8zc3FDIYEYT0WFAP9GY6kipCHUfvPbN76Lu_Xo!1218229120",
+      "domain": "eiiv-dev6.login.us6.oraclecloud.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "OAM_ID",
+      "value": "VERSION_4~UxudAf/F04sxUhzJY4zEYw==~NjAlQ9s5ulPPW3u/lPPjteknZ39qMa6S0jOpWzLrwfDylLkj78S4oT2yaM55E4B3G33wPHXVbwdVtpkpi1QHho8MaFNB97e0zLIAjnhLzmHUWarNv+a7/4y/qEj9YdEVc1e2jrT+2hR++MYPku4CSTfsbW8mIl26Pl1rGwcHbHfqjIoMq9HYjyfl+Y7egxm2s7VGAKsoYNEdWf2Hkubl/W4p2aCTF0zy86xpSL8QkQZ1koHo03YVGWTIsGGsS5hqHckfM46mRQYnUk78cIjhr8x8oEP72w0CMOf0C7sADFCdEjstSxLsV6p9/auwsI/X2xt5YwUWXwCMw2Kiobuolqz6uxQP6q3byCZ0xKPlUzlaNUr3xT4EaS0xRyB+252BL7CQDLTtR6wnHWAQ+HZR2yW9DtuHm8BWN2lyp0H5/d8=",
+      "domain": "eiiv-dev6.login.us6.oraclecloud.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "OAM_REQ_0",
+      "value": "invalid",
+      "domain": "eiiv-dev6.login.us6.oraclecloud.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "OAM_REQ_1",
+      "value": "invalid",
+      "domain": "eiiv-dev6.login.us6.oraclecloud.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "OAMAuthnCookie_eiiv-dev6.fa.us6.oraclecloud.com_443",
+      "value": "bc3f55b3bb77508b98054883a69a3c921694aaba%7EaJX5AxmiYfeuWTuwiIPx4I6Y2ZmQn3n9MInypHSTzcUxBNm%2Fd69u3c8yUgQhPNBCARh9MbPHxM4WF4LQgyjQwPqX2w0pbGtGrb9Td9s0sHApWeqCyGZpAhZHy8igStnV%2Bt5thiK0E2CFJLnzq6zQQC4olSWxIDrn5g%2B%2FyPPE%2B8NgVAmatdgQCwA8sSaT7fLlQJKkOSGAyoLQBszV91on67kJm4%2BC94iFHu6vesqJpsbGqkEgxrwfP23lGjWs5cCH0JeYNOqmRjNrBE9XepsLneY%2FslFINzkSlIingA6DcXwhdilXE7cxvgYt22rmVBZqisteLyoRP4K%2BMevQYmNvA4XIZ%2Brd9tB7tytHOysZX4ATvb5DLu3gjV9PIDWP3OqZsllg8T8woyENbYoPQrzRZHo8kxneeyvUM2p2RXthuMd4xKMXrILi0BR3GEdz9gc7Qjuu5uIzPj8OyqM7Vc3sLaRMNTANedHPIogU3YlEYpnZ4tEutV6%2BiBIlHsM0idy0jWKVv2tIzYfCIpez4tOUl3qsFC6Kb3A5W%2BUcL3SF0L3JYCbSMMY6F%2F%2B61ojbWCJeyANARiOphnEdKrxvOi5mHda6XxxceSDprf25JaV%2Bmg%2Fxj25ZPxGVAhdEd%2BRPiuQvwUn59p6Qz0q7QnlQ6WVlrM%2FxClnY0qdx8uDojaIGhpVHR0agwUbIDqrz2SJ6W8%2BzURfX0LseStGauD%2FUR9bx9w%3D%3D",
+      "domain": "eiiv-dev6.fa.us6.oraclecloud.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "OAMAuthnHintCookie",
+      "value": "1",
+      "domain": ".oraclecloud.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "ORA_FUSION_PREFS",
+      "value": "v1.0~bG9jYWxlPWVufmRlZmF1bHRMYW5ndWFnZU1hcmtlcj1mYWxzZX5wcmVmZXJyZWRMYW5ndWFnZT1lbi11cw==",
+      "domain": ".oraclecloud.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "ORA_FND_SESSION_US6CA6FU_F",
+      "value": "DEFAULT_PILLAR:4Wjhlf2GFWwVnlwUXOd095FY1JA+7o2hJOV/KEDiTWrUfPoDhuUxx3L69n3wMmiQ:1758012479708",
+      "domain": ".oraclecloud.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "bm_sv",
+      "value": "47BF27AAF8B5B1B08059C848953A4144~YAAQhHd7XLhmwTSZAQAA9qG1UR0epW5hIuegz+AYQOZkcTdSSwOwUg6fohhZXeFVnBlGR2J8j32nJOarpFfkvVQW8Ox5bSZOeCBdqy3Epo3B83Y4UImx4Er433Fq58fYAgFsHF/vRxIc+WPdQOLHhV0W9xadbWLCgCWnv073mTRc0NcSNA11Zhb5qbJhC1/veN+V7U59NIJCC7KMP0Uz2MG3klpcwIReZSHfdwagLXqqzjZmnGq4RPqBYUMjzcXudblHkvdGTvyCnZZr~1",
+      "domain": ".fa.us6.oraclecloud.com",
+      "path": "/",
+      "expires": 1758019675.807278,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "Lax"
+    }
+  ],
+  "origins": [
+    {
+      "origin": "https://eiiv-dev6.fa.us6.oraclecloud.com",
+      "localStorage": [
+        {
+          "name": "oracle.adfinternal.view.rich.sessionKey_258ljmmjj",
+          "value": "1758014282862"
+        }
+      ]
+    }
+  ]
+}

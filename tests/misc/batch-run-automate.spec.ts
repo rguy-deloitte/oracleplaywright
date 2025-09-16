@@ -1,7 +1,7 @@
 // Ensure you have the required Excel file in the correct directory: excel-data-files/batch-run-automate.xlsx
 // Run using: npx playwright test tests/batch-run-automate.spec.ts --ui --debug
 import { test, type Page } from '@playwright/test';
-import { ExcelService } from '../src/services/excel.service';
+import { ExcelService } from '../../src/services/excel.service';
 
 const getDataFromExcelFile = true, generateResultsExcelFile = true;  // Set to true to read data from Excel file
 let setupData: any[] = [];          // Data items from the Setup Excel sheet

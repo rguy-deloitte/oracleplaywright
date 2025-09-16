@@ -2,7 +2,7 @@
 // Ensure you have the required Excel file in the correct directory: excel-data-files/example-oracle-with-excel-data.xlsx
 // Run using: npx playwright test tests/example-oracle-with-excel-data.spec.ts
 import { test } from '@playwright/test';
-import { ExcelService } from '../src/services/excel.service';
+import { ExcelService } from '../../src/services/excel.service';
 import dotenv from 'dotenv';
 import path from 'path';
 
@@ -10,7 +10,7 @@ dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 let testLoopStartTime: Date = new Date(), testLoopEndTime: Date = new Date();
 const authFile = path.join(__dirname, '../.auth/auth-state.json');
-let apiContext;
+let apiContext : any;
 
 const getDataFromExcelFile = true;      // Set to true to read data from Excel file
 const generateResultsExcelFile = true;  // Set to true to write results to results excel file (filename *-results-YYYYMMDD-hhmmss.xlsx)
@@ -90,7 +90,7 @@ test('Oracle With Excel Data Example', async ({ page }, testInfo) => {
               do {
                 await page.waitForTimeout(1000);
                 jobStatus = await apiContext.get('./erpintegrations', { params: `?finder=ESSJobStatusRF;requestId=${processNumber}` })
-                  .catch((e) => console.log('Error with api call:', e));
+                  .catch((e: any) => console.log('Error with api call:', e));
                 jobStatusJson = await jobStatus.json();
                 jobRequestStatus = jobStatusJson.items[0].RequestStatus;
               } while (!['SUCCEEDED', 'CANCELED', 'ERROR', 'ERROR MANUAL RECOVERY', 'EXPIRED', 'FINISHED', 'HOLD', 'VALIDATION FAILED', 'WARNING'].includes(jobRequestStatus));  // See: https://docs.oracle.com/en/cloud/saas/applications-common/25c/oacpr/statuses-of-scheduled-processes.html

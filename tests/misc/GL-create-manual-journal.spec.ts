@@ -2,7 +2,7 @@
 // If reading data from Excel, ensure you have the required Excel file in the correct directory: excel-data-files/GL-create-manual-journal.xlsx
 // Run using: npx playwright test tests/GL-create-manual-journal.spec.ts
 import { test } from '@playwright/test';
-import { ExcelService } from '../src/services/excel.service';
+import { ExcelService } from '../../src/services/excel.service';
 import dotenv from 'dotenv';
 import path from 'path';
 
