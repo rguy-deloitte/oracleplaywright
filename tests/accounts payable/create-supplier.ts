@@ -1,4 +1,4 @@
-import { test } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import path from 'path';
 import * as navUtil from '../util/navigation';
 import * as form from '../util/form';
@@ -21,6 +21,14 @@ export async function createSupplier(page: any, testInfo: any, supplierItem: any
     form.setFormSelectIndex(page, 'Tax Organization Type', supplierItem["Tax Organization Type"]);
     form.submit(page,'Create');
     page.waitForLoadState('networkidle');
+
+
+    //
+    // await page.getByText('Error').waitFor();
+    await expect(await page.getByText("Error")).not.toBeVisible();
+
+    // expect(page.locator(`a:has-text("${supplierItem.Supplier}")`)).toBeVisible();
+    
 
     // / Select the label for "Supplier" (optional, for demonstration)
     
