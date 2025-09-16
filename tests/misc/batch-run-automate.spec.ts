@@ -1,5 +1,9 @@
 // Ensure you have the required Excel file in the correct directory: excel-data-files/batch-run-automate.xlsx
 // Run using: npx playwright test tests/batch-run-automate.spec.ts --ui --debug
+<<<<<<< HEAD:tests/misc/batch-run-automate.spec.ts
+import { test, type Page } from '@playwright/test';
+import { ExcelService } from '../../src/services/excel.service';
+=======
 import { test } from '@playwright/test';
 import { ExcelService } from '../src/services/excel.service';
 import dotenv from 'dotenv';
@@ -11,6 +15,7 @@ import path from 'path';
 // - split the currencies onto separate tabs
 
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
+>>>>>>> 06767cc95b72279310e87e399e52c7712ed7f8fe:tests/batch-run-automate.spec.ts
 
 let testLoopStartTime: Date = new Date(), testLoopEndTime: Date = new Date();
 const authFile = path.join(__dirname, '../.auth/auth-state.json');

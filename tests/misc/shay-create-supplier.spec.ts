@@ -18,10 +18,11 @@ for(let i = 0; i < 3; i++){
 
         await test.step('Access Home Page', async () => {
             await page.goto('https://eiiv-dev6.fa.us6.oraclecloud.com/fscmUI/faces/FuseWelcome');
-
+            await page.getByTitle('Navigator').click();
         });
 
         await test.step('Navigate to Procurement', async () => { 
+            
             await page.getByRole('link', { name: 'Procurement' }).click();
             await testInfo.attach('Navigate to Procurement', { body: await page.screenshot(), contentType: 'image/png' });
         });

@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
-const authFile = path.join(__dirname, '../.auth/auth-state.json');
+// const authFile = path.join(__dirname, 'tests/.auth/auth-state.json');
 const loginUrl = process.env.LOGINURL!;
 const userName = process.env.ORACLEUSERNAME!;
 const password = process.env.ORACLEPASSWORD!;
@@ -19,8 +19,9 @@ setup('authenticate', async ({ page }) => {
 
     // Wait for the final URL to ensure the storage state is set
     await page.waitForURL(`${new URL(loginUrl).origin}/**`);
+    await page.waitForLoadState('networkidle');
     // await page.waitForTimeout(10000);    // <-- An alternative approach
 
     // Save storage state into the file.
-    await page.context().storageState({ path: authFile });
+    await page.context().storageState({ path: 'tests/.auth/auth-state.json' });
 });
