@@ -19,6 +19,8 @@ export async function createSupplier(page: any, testInfo: any, supplierItem: any
     form.setFormFieldValue(page, 'Supplier', supplierItem.Supplier);
     form.setFormSelectValue(page, 'Business Relationship', supplierItem["Business Relationship"]);
     form.setFormSelectIndex(page, 'Tax Organization Type', supplierItem["Tax Organization Type"]);
+    form.submit(page,'Create');
+    page.waitForLoadState('networkidle');
 
     // / Select the label for "Supplier" (optional, for demonstration)
     

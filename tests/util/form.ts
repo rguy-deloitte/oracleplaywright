@@ -28,6 +28,11 @@ export async function setFormSelectIndex(page: any, labelText: string, index: st
 }
 
 
+export async function submit(page: any, labelText: string = 'Create') {
+    const submitButton = await page.locator('button').getByText(labelText, { exact: true });
+    await submitButton.click();
+}
+
 function cssEscape(ident: string) {
     return ident.replace(/([ !"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~])/g, '\\$1');
 }
