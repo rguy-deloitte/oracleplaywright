@@ -8,8 +8,6 @@ import path from 'path';
 
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 // *** Note *** Login handled in auth.setup.ts
-const authFile = path.join(__dirname, '../.auth/auth-state.json');
-test.use({ storageState: authFile });
 test.describe.configure({ mode: 'serial' });  // Required to ensure tests run in expected order and that beforeAll & afterAll only run once
 
 let testLoopStartTime: Date = new Date(), testLoopEndTime: Date = new Date();

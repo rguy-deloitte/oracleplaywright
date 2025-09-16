@@ -41,7 +41,7 @@ export default defineConfig({
       name: 'oracleAutomation',
       use: { 
         ...devices['Desktop Chrome'],
-        storageState: '.auth/auth-state.json',
+        storageState: 'tests/.auth/auth-state.json',
       },
       dependencies: ['oracleSetup'],
     },

@@ -1,11 +1,7 @@
 // Ensure you have the required Excel file in the correct directory: excel-data-files/batch-run-automate.xlsx
-// Run using: npx playwright test tests/batch-run-automate.spec.ts --ui --debug
-<<<<<<< HEAD:tests/misc/batch-run-automate.spec.ts
-import { test, type Page } from '@playwright/test';
-import { ExcelService } from '../../src/services/excel.service';
-=======
+// Run using: npx playwright test tests/misc/batch-run-automate.spec.ts --ui
 import { test } from '@playwright/test';
-import { ExcelService } from '../src/services/excel.service';
+import { ExcelService } from '../../src/services/excel.service';
 import dotenv from 'dotenv';
 import path from 'path';
 
@@ -15,25 +11,20 @@ import path from 'path';
 // - split the currencies onto separate tabs
 
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
->>>>>>> 06767cc95b72279310e87e399e52c7712ed7f8fe:tests/batch-run-automate.spec.ts
+// *** Note *** Login handled in auth.setup.ts and requires playwright.config.ts -> 
+test.describe.configure({ mode: 'serial' });  // Required to ensure tests run in expected order and that beforeAll & afterAll only run once
 
 let testLoopStartTime: Date = new Date(), testLoopEndTime: Date = new Date();
-const authFile = path.join(__dirname, '../.auth/auth-state.json');
-let apiContext;
-
+let apiContext: any;
 const getDataFromExcelFile = true;      // Set to true to read data from Excel file
 const generateResultsExcelFile = true;  // Set to true to write results to results excel file (filename *-results-YYYYMMDD-hhmmss.xlsx)
 let setupData: any[] = [];              // Data items from the Setup Excel sheet
 let loopData: any[][] = [];             // Data items from the Loop Excel sheet
 const skipRatherThanSubmit = false;     // Set to true to skip submission and just take screenshots
-
-test.use({ storageState: authFile });
+if (getDataFromExcelFile) ({ setupData, loopData } = ExcelService.readExcelData(__filename));
+if (generateResultsExcelFile) ExcelService.writeResultsHeaderRow(['ACCOUNTING PERIOD', 'BALANCING SEGMENT', 'REQUESTID', 'STARTTIME', 'ENDTIME', 'RESULT']);
 
 test.beforeAll(async ({ playwright }) => {
-  // Load data from Excel file & prepare results file if required
-  if (getDataFromExcelFile) ({ setupData, loopData } = ExcelService.readExcelData(__filename));
-  if (generateResultsExcelFile) ExcelService.writeResultsHeaderRow(['ACCOUNTING PERIOD', 'BALANCING SEGMENT', 'REQUESTID', 'STARTTIME', 'ENDTIME', 'RESULT']);
-
   // Setup Oracle API. See: https://docs.oracle.com/en/cloud/saas/financials/25c/farfa/Quick_Start.html
   apiContext = await playwright.request.newContext({
     baseURL: process.env.APIBASEURL,
@@ -44,74 +35,70 @@ test.beforeAll(async ({ playwright }) => {
   });
 });
 
-test.afterAll(async ({ }) => {
+test.afterAll(async () => {
   await apiContext.dispose();
   if (generateResultsExcelFile) ExcelService.save();
 });
 
-test.describe.configure({ mode: 'serial' });
+test.describe('Schedule New Process Bermuda', () => {
+  test.beforeEach(async ({ page }) => {
+    // Navigate to where the process begins
+    await page.goto(setupData[0]);
+    await page.getByRole('link', { name: 'Tools' }).click();
+    await page.getByTitle('Scheduled Processes').click();
+    await page.getByRole('button', { name: 'Schedule New Process' }).click();
+    await page.getByRole('combobox', { name: 'Name' }).click();
+    await page.getByRole('combobox', { name: 'Name' }).fill(setupData[1]);
+    await page.getByRole('combobox', { name: 'Name' }).press('Enter');
+  });
 
-test('Schedule New Process Bermuda', async ({ page }, testInfo) => {
-    test.slow();
+  loopData.forEach(currentRow => {
+    test(`Accounting Period: ${currentRow[0]}`, async ({ page }, testInfo) => {
+        test.slow();
+        await test.step('Submit Process', async () => {
+          testLoopStartTime = new Date();
 
-    // Login to Oracle Fusion
-     await test.step('Login into Oracle Fusion', async () => {
-        await page.goto(setupData[0]);
-        // await page.pause();
+          await page.getByRole('button', { name: 'OK' }).click();
+          await page.getByLabel('Data Access Set').click();
+          await page.getByLabel('Data Access Set').selectOption(setupData[2]);
+          await page.getByLabel('Ledger or Ledger Set').selectOption(setupData[3]);
+          await page.getByLabel('Target Currency').selectOption(setupData[4]);
+          await page.getByLabel('Accounting Period').selectOption(currentRow[0]);
+          await page.getByRole('combobox', { name: 'Balancing Segment' }).click();
+          await page.getByRole('combobox', { name: 'Balancing Segment' }).fill(currentRow[1]);
+          await page.getByRole('combobox', { name: 'Balancing Segment' }).press('Enter');
+          // await page.waitForTimeout(1000);
+          if (skipRatherThanSubmit) {
+              await testInfo.attach(`${currentRow[0]} Final Screen (cancelled)...`, { body: await page.screenshot(), contentType: 'image/png' });
+              await page.getByRole('button', { name: 'Cancel', exact: true }).click();
+          } else {
+              await page.getByRole('button', { name: 'Submit', exact: true }).click();
 
-        // *** Note *** Login handled in auth.setup.ts
-        // Navigate to where the process begins
-        await page.getByRole('link', { name: 'Tools' }).click();
-        await page.getByTitle('Scheduled Processes').click();
-        await page.getByRole('button', { name: 'Schedule New Process' }).click();
-        await page.getByRole('combobox', { name: 'Name' }).click();
-        await page.getByRole('combobox', { name: 'Name' }).fill(setupData[1]);
-        await page.getByRole('combobox', { name: 'Name' }).press('Enter');
-    });
-    
-    // Schedule New Process
-    for (let row = 1; row < loopData.length; row++) {
-        await test.step(`Process: ${loopData[row][0]}`, async () => {
-            testLoopStartTime = new Date();
-            await page.getByRole('button', { name: 'OK' }).click();
-            await page.getByLabel('Data Access Set').click();
-            await page.getByLabel('Data Access Set').selectOption(setupData[2]);
-            await page.getByLabel('Ledger or Ledger Set').selectOption(setupData[3]);
-            await page.getByLabel('Target Currency').selectOption(setupData[4]);
-            await page.getByLabel('Accounting Period').selectOption(loopData[row][0]);
-            await page.getByRole('combobox', { name: 'Balancing Segment' }).click();
-            await page.getByRole('combobox', { name: 'Balancing Segment' }).fill(loopData[row][1]);
-            await page.getByRole('combobox', { name: 'Balancing Segment' }).press('Enter');
-            await page.waitForTimeout(1000);
+              const processSubmittedMessage = await page.getByText(/Process \d+ was submitted\./).textContent();
+              const processNumber = processSubmittedMessage?.match(/^Process (\d+) was submitted\.$/)?.[1];
+              await testInfo.attach(`${currentRow[0]} Final Screen (submitted)...`, { body: await page.screenshot(), contentType: 'image/png' });
+              await page.getByRole('button', { name: 'OK' }).click();
 
-            if (skipRatherThanSubmit) {
-                await testInfo.attach(`${loopData[row][0]} Final Screen (cancelled)...`, { body: await page.screenshot(), contentType: 'image/png' });
-                await page.getByRole('button', { name: 'Cancel', exact: true }).click();
-            } else {
-                await page.getByRole('button', { name: 'Submit', exact: true }).click();
-                const processSubmittedMessage = await page.getByText(/Process \d+ was submitted\./).textContent();
-                const processNumber = processSubmittedMessage?.match(/^Process (\d+) was submitted\.$/)?.[1];
-                await testInfo.attach(`${loopData[row][0]} Final Screen (submitted)...`, { body: await page.screenshot(), contentType: 'image/png' });
-                await page.getByRole('button', { name: 'OK' }).click();
+              if (processNumber) {
+                let jobStatus, jobStatusJson, jobRequestStatus = '';
+                do {
+                  await page.waitForTimeout(1000);
+                  jobStatus = await apiContext.get('./erpintegrations', { params: `?finder=ESSJobStatusRF;requestId=${processNumber}` })
+                    .catch((e) => console.log('Error with api call:', e));
+                  jobStatusJson = await jobStatus.json();
+                  jobRequestStatus = jobStatusJson.items[0].RequestStatus;
+                } while (!['SUCCEEDED', 'CANCELED', 'ERROR', 'ERROR MANUAL RECOVERY', 'EXPIRED', 'FINISHED', 'HOLD', 'VALIDATION FAILED', 'WARNING'].includes(jobRequestStatus));  // See: https://docs.oracle.com/en/cloud/saas/applications-common/25c/oacpr/statuses-of-scheduled-processes.html
 
-                if (processNumber) {
-                    let jobStatus, jobStatusJson, jobRequestStatus = '';
-                    do {
-                        await page.waitForTimeout(1000);
-                        jobStatus = await apiContext.get('./erpintegrations', { params: `?finder=ESSJobStatusRF;requestId=${processNumber}` })
-                                        .catch((e) => console.log('Error with api call:', e));
-                        jobStatusJson = await jobStatus.json();
-                        jobRequestStatus = jobStatusJson.items[0].RequestStatus;
-                    } while (!['SUCCEEDED', 'CANCELED', 'ERROR', 'ERROR MANUAL RECOVERY', 'EXPIRED', 'FINISHED', 'HOLD', 'VALIDATION FAILED', 'WARNING'].includes(jobRequestStatus));  // See: https://docs.oracle.com/en/cloud/saas/applications-common/25c/oacpr/statuses-of-scheduled-processes.html
+                testLoopEndTime = new Date();
+                ExcelService.writeResultsResultRow([currentRow[0], currentRow[1], processNumber, testLoopStartTime, testLoopEndTime, jobRequestStatus]);
 
-                    testLoopEndTime = new Date();
-                    ExcelService.writeResultsResultRow([loopData[row][0], loopData[row][1], 'CURRENCY', processNumber, testLoopStartTime, testLoopEndTime, jobRequestStatus]);
-                } else {
-                    console.log('Process number not found in the submission confirmation message:', processSubmittedMessage);
-                    // throw new Error('Process number not found in the submission confirmation message.');
-                }
-            }
-            await page.getByRole('button', { name: 'Schedule New Process' }).click();
+              } else {
+                console.log('Process number not found in the submission confirmation message:', processSubmittedMessage);
+                // throw new Error('Process number not found in the submission confirmation message.');
+              }
+          }
+          await page.getByRole('button', { name: 'Schedule New Process' }).click();
         });
-    }
+    });
+  });
 });
