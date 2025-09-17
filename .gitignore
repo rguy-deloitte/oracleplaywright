@@ -10,3 +10,4 @@ node_modules/
 /tests/.auth/*
 *.env*
 /excel-data-files/*results*
+tests/.auth/auth-state.json
