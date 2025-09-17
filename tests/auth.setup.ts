@@ -3,7 +3,6 @@ import dotenv from 'dotenv';
 import path from 'path';
 
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
-// const authFile = path.join(__dirname, 'tests/.auth/auth-state.json');
 const loginUrl = process.env.LOGINURL!;
 const userName = process.env.ORACLEUSERNAME!;
 const password = process.env.ORACLEPASSWORD!;

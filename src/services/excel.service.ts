@@ -30,7 +30,8 @@ export class ExcelService {
         if (setupData.length === 0 || loopData.length === 0) {
             console.error(`Error with format of Excel file: ${sourceDataXslxFilePath}`);
             process.exit(1);
-        }        
+        }
+        loopData.shift();   // remove header row
 
         return { setupData, loopData };
     }
