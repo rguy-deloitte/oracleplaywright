@@ -20,7 +20,7 @@ export async function createSupplier(page: any, testInfo: any, supplierItem: any
 
     await form.setFormFieldValue(page, 'Supplier', supplierItem.Supplier);
     await form.setFormSelectValue(page, 'Business Relationship', supplierItem["Business Relationship"]);
-    await form.setFormSelectIndex(page, 'Tax Organization Type', supplierItem["Tax Organization Type"]);
+    await form.setFormSelectValue(page, 'Tax Organization Type', supplierItem["Tax Organization Type"]);
     await form.submit(page, 'Create');
     await page.waitForLoadState('networkidle');
 
@@ -51,11 +51,11 @@ export async function fakeData(count: number) {
     for (let i = 0; i < count; i++) {
         items.push({
             Supplier: faker.company.name().substring(0, 30), // Limit to 30 characters
-            "Business Relationship": faker.helpers.arrayElement(['Prospective', 'Spend Authorised']),
+            "Business Relationship": faker.helpers.arrayElement(['Prospective', 'Spend Authorized']),
             "Tax Organization Type": faker.helpers.arrayElement(["Corporation",
                 "Individual",
                 "Government Agency",
-                "Partnership ",
+                "Partnership",
                 "Foreign Corporation",
                 "Foreign Government Agency",
                 "Foreign Individual",
