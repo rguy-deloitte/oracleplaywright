@@ -1,6 +1,6 @@
 
 import test from '@playwright/test';
-import * as csTest from './create-supplier'
+import * as csTest from './supplier'
 
 test.slow();
 let supplierItems: any[] = [];
@@ -25,6 +25,8 @@ test.describe('Supplier Tests', async () => {
             
             console.log(`Running test for supplier: ${supplierItem.Supplier}`);
             await csTest.createSupplier(page, testInfo, supplierItem, index);
+
+            
         });
         index++; 
     });

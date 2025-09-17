@@ -21,9 +21,11 @@ export async function createSupplier(page: any, testInfo: any, supplierItem: any
     await form.setFormFieldValue(page, 'Supplier', supplierItem.Supplier);
     await form.setFormSelectValue(page, 'Business Relationship', supplierItem["Business Relationship"]);
     await form.setFormSelectValue(page, 'Tax Organization Type', supplierItem["Tax Organization Type"]);
+
     await form.submit(page, 'Create');
     await page.waitForLoadState('networkidle');
 
+    // REFINE this please .. 
     const errorMsg = await page.getByText("Error");
     if (await errorMsg.isVisible()) {
         assert(false,'Error creating supplier');
@@ -73,10 +75,3 @@ export async function fakeData(count: number) {
     }
     return items
 }
-
-
-
-
-// pt1:_FOr1:1:_FONSr2:0:_FOTRaT:0:dynam1:0:it1::content
-// pt1:_FOr1:1:_FONSr2:0:_FOTRaT:0:dynam1:0:it1::content
-// pt1:_FOr1:1:_FONSr2:0:_FOTRaT:0:dynam1:0:it1
