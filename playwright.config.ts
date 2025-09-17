@@ -40,7 +40,7 @@ export default defineConfig({
     {
       name: 'chromium',
       use: {  ...devices['Desktop Chrome'], storageState: '.auth/auth-state.json',},
-      dependencies: ['setup'],
+      dependencies: ['oracleSetup'],
     },
 
     // {
