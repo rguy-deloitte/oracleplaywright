@@ -5,15 +5,20 @@ import { test, expect } from '@playwright/test';
 import { ExcelService } from '../../src/services/excel.service';
 import dotenv from 'dotenv';
 import path from 'path';
+import { addJournalLines } from '../util/journal';
 
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 let testLoopStartTime: Date = new Date(), testLoopEndTime: Date = new Date();
-const authFile = path.join(__dirname, '../.auth/auth-state.json');
+const authFile = path.join(__dirname, '../../.auth/auth-state.json');
 
 const getDataFromExcelFile = false;         // Set to true to read data from Excel file
 const generateResultsExcelFile = false;     // Set to true to write results to results excel file (filename *-results-YYYYMMDD-hhmmss.xlsx)
-let setupData: any[] = [];                  // Data items from the Setup Excel sheet
-let loopData: any[][] = [];                 // Data items from the Loop Excel sheet
+let setupData: any[] = ['https://eiiv-dev6.fa.us6.oraclecloud.com/fscmUI/faces/FuseWelcome', '14010.000000.1012000000.000000.00000.000000.00000.0000.00000.00000'];                  // Data items from the Setup Excel sheet
+let loopData: any[][] = [['Entered Debit', 'Description Mandatory'],
+ ['11.11', 'abc'], 
+ ['22.22', 'def'], 
+ ['33.33', 'ghi'], 
+ ['44.44', 'jkl']];                // Data items from the Loop Excel sheet
 const skipRatherThanSubmit = true;          // Set to true to skip submission and just take screenshots
 
 test.use({ storageState: authFile });
@@ -34,7 +39,7 @@ test('Post Manual Journal', async ({ page, request }, testInfo) => {
 
     // Access the Oracle Fusion Home Page
     await test.step('Access Home Page', async () => {
-        await page.goto('https://eiiv-dev6.fa.us6.oraclecloud.com/fscmUI/faces/FuseWelcome');
+        await page.goto(setupData[0]);
         await testInfo.attach('Access_Home_Page', { body: await page.screenshot(), contentType: 'image/png' });
     });
  
@@ -46,42 +51,22 @@ test('Post Manual Journal', async ({ page, request }, testInfo) => {
         await testInfo.attach('Navigate to Journals Page', { body: await page.screenshot(), contentType: 'image/png' });
     });
  
-        //create journal
+    //create journal
     await test.step('Navigate to Create Journal', async () => {
         await page.getByRole('link', { name: 'Tasks' }).click();
         await page.getByRole('link', { name: 'Create Journal', exact: true }).click();
         await testInfo.attach('Select Tasks and Create Journal', { body: await page.screenshot(), contentType: 'image/png' });
     });
 
-    await expect(page.locator('[summary="Journal Lines"]')).toBeVisible();
-    await expect(page.locator('[summary="Journal Lines"]').getByRole('row')).toHaveCount(2);
-
     const journalLinesTableRows = await page.locator('[summary="Journal Lines"]').getByRole('row');
 
+    await expect(journalLinesTableRows).toHaveCount(2);
 
-    const jlAccount = '14010.000000.1012000000.000000.00000.000000.00000.0000.00000.00000';
-
-    await journalLinesTableRows.nth(0).getByRole('textbox', { name: 'Account' }).fill(jlAccount);
-    await journalLinesTableRows.nth(0).getByRole('textbox', { name: 'Entered Debit' }).fill('11.11');
-    await journalLinesTableRows.nth(0).getByRole('textbox', { name: 'Description Mandatory' }).fill('abc');
-    await journalLinesTableRows.nth(0).getByRole('textbox', { name: 'Description Mandatory' }).press('Enter');
-
-    await journalLinesTableRows.nth(1).getByRole('textbox', { name: 'Account' }).fill(jlAccount);
-    await journalLinesTableRows.nth(1).getByRole('textbox', { name: 'Entered Debit' }).fill('22.22');
-    await journalLinesTableRows.nth(1).getByRole('textbox', { name: 'Description Mandatory' }).fill('def');
-    await journalLinesTableRows.nth(1).getByRole('textbox', { name: 'Description Mandatory' }).press('Enter');
-
-    await page.getByRole('button', { name: 'Add Row', exact: true }).click();
-
-    await journalLinesTableRows.nth(2).getByRole('textbox', { name: 'Account' }).fill(jlAccount);
-    await journalLinesTableRows.nth(2).getByRole('textbox', { name: 'Entered Debit' }).fill('33.33');
-    await journalLinesTableRows.nth(2).getByRole('textbox', { name: 'Description Mandatory' }).fill('ghi');
-    await journalLinesTableRows.nth(2).getByRole('textbox', { name: 'Description Mandatory' }).press('Enter');
+    await addJournalLines(journalLinesTableRows, setupData[1], page.getByRole('button', { name: 'Add Row', exact: true }), loopData);
 
     await testInfo.attach('Fill a JL Account', { body: await page.screenshot(), contentType: 'image/png' });
-
+    await expect(journalLinesTableRows).toHaveCount(loopData.length - 1);
     console.log('JLT RowCount x:', await journalLinesTableRows.count());
-    await expect(page.locator('[summary="Journal Lines"]').getByRole('row')).toHaveCount(3);
 
     /*
      //populate journal  
