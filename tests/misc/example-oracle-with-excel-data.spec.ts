@@ -1,7 +1,7 @@
 // This Example test script automates the scheduling of a new process in Oracle Fusion using Playwright and Excel data.
 // Ensure you have the required Excel file in the correct directory: excel-data-files/example-oracle-with-excel-data.xlsx
 // Run using: npx playwright test tests/misc/example-oracle-with-excel-data.spec.ts
-import { test } from '@playwright/test';
+import { test, type Page } from '@playwright/test';
 import { ExcelService } from '../../src/services/excel.service';
 import dotenv from 'dotenv';
 import path from 'path';
@@ -19,8 +19,11 @@ let loopData: any[][] = [];             // Data items from the Loop Excel sheet
 const skipRatherThanSubmit = false;     // Set to true to skip submission and just take screenshots
 if (getDataFromExcelFile) ({ setupData, loopData } = ExcelService.readExcelData(__filename));
 if (generateResultsExcelFile) ExcelService.writeResultsHeaderRow(['ACCOUNTING PERIOD', 'BALANCING SEGMENT', 'REQUESTID', 'STARTTIME', 'ENDTIME', 'RESULT']);
+let page: Page;
 
-test.beforeAll(async ({ playwright }) => {
+test.beforeAll(async ({ browser, playwright }) => {
+  page = await browser.newPage();
+
   // Setup Oracle API. See: https://docs.oracle.com/en/cloud/saas/financials/25c/farfa/Quick_Start.html
   apiContext = await playwright.request.newContext({
     baseURL: process.env.APIBASEURL,
@@ -33,11 +36,12 @@ test.beforeAll(async ({ playwright }) => {
 
 test.afterAll(async () => {
   await apiContext.dispose();
+  await page.close();
   if (generateResultsExcelFile) ExcelService.save();
 });
 
 test.describe('Schedule New Process', () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async () => {
     // Navigate to where the process begins
     await page.goto(setupData[0]);
     await page.getByRole('link', { name: 'Tools' }).click();
@@ -49,7 +53,7 @@ test.describe('Schedule New Process', () => {
   });
 
   loopData.forEach(currentRow => {
-    test(`Accounting Period: ${currentRow[0]}`, async ({ page }, testInfo) => {
+    test(`Accounting Period: ${currentRow[0]}`, async ({ }, testInfo) => {
         test.slow();
         await test.step('Submit Process', async () => {
           testLoopStartTime = new Date();
