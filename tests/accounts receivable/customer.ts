@@ -13,8 +13,8 @@ export async function createCustomer(page: any, testInfo: any, customerItem: any
     console.log(`Create Customer: ${i}`);
     await navUtil.navigateToHomePage(page);
     await navUtil.navigateToTile(page, 'Receivables', testInfo);
-    await navUtil.navigateToTileLink(page, 'Manage Customers', testInfo);
-    await navUtil.navigateToTileSideLink(page, 'Create', testInfo);
+    await navUtil.navigateToLeftNavLink(page, 'Manage Customers', testInfo);
+    // await navUtil.navigateToTileSideLink(page, 'Create', testInfo);
 
 
 
