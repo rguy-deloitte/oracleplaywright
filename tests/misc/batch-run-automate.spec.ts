@@ -1,16 +1,16 @@
 // Ensure you have the required Excel file in the correct directory: excel-data-files/batch-run-automate.xlsx
 // Run using: npx playwright test tests/misc/batch-run-automate.spec.ts --ui
-import { test } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 import { ExcelService } from '../../src/services/excel.service';
 import dotenv from 'dotenv';
 import path from 'path';
 
 // *** TODO ***
-// - Fix heading in report excel
-// - make it cancel on error
+    // - Fix heading in report excel
+    // - make it cancel on error
 // - split the currencies onto separate tabs
 
-dotenv.config({ path: path.resolve(__dirname, '../.env') });
+dotenv.config({ path: path.resolve(__dirname, '../.env'), quiet: true });
 // *** Note *** Login handled in auth.setup.ts and requires playwright.config.ts -> 
 test.describe.configure({ mode: 'serial' });  // Required to ensure tests run in expected order and that beforeAll & afterAll only run once
 
@@ -91,6 +91,7 @@ test.describe('Schedule New Process Bermuda', () => {
 
                 testLoopEndTime = new Date();
                 ExcelService.writeResultsResultRow([currentRow[0], currentRow[1], processNumber, testLoopStartTime, testLoopEndTime, jobRequestStatus]);
+                await expect(jobRequestStatus).toBe('SUCCEEDED');
 
               } else {
                 console.log('Process number not found in the submission confirmation message:', processSubmittedMessage);
