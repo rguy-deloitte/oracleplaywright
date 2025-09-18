@@ -10,7 +10,7 @@ import { navigateToHomePage, navigateToTile, navigateToTileLink, navigateToTileS
 
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 let testLoopStartTime: Date = new Date(), testLoopEndTime: Date = new Date();
-const authFile = path.join(__dirname, '../../.auth/auth-state.json');
+const authFile = path.join(__dirname, '../.auth/auth-state.json');
 
 const getDataFromExcelFile = false;         // Set to true to read data from Excel file
 const generateResultsExcelFile = false;     // Set to true to write results to results excel file (filename *-results-YYYYMMDD-hhmmss.xlsx)

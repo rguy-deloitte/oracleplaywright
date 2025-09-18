@@ -6,7 +6,8 @@ dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 export async function navigateToHomePage(page: any, url?: string) {
     await test.step('Access Home Page', async () => {
-        await page.goto(process.env.LOGINURL);
+        url ??= process.env.LOGINURL;
+        await page.goto(url);
         await page.waitForLoadState('networkidle');
     });
 }
@@ -18,6 +19,7 @@ export async function navigateToTile(page: any, name: string, testInfo: any) {
         await testInfo.attach(`Navigate to ${name}`, { body: await page.screenshot(), contentType: 'image/png' });
     });
 }
+
 export async function navigateToTileLink(page: any, link: string, testInfo: any) {
     await test.step(`Navigate to ${link}`, async () => {
         await page.getByTitle(link).click();
@@ -34,6 +36,3 @@ export async function navigateToTileSideLink(page: any, link: string, testInfo: 
         await testInfo.attach(`Manage Task & ${link}`, { body: await page.screenshot(), contentType: 'image/png' });
     });
 }
-
-
-
