@@ -4,7 +4,7 @@ import * as navUtil from '../util/navigation';
 import * as form from '../util/form';
 import { faker } from '@faker-js/faker';
 import { assert } from 'console';
-const authFile = path.join(__dirname, '../.auth/auth-state.json');
+const authFile = path.join(__dirname, '../../.auth/auth-state.json');
 test.use({ storageState: authFile });
 
 

@@ -6,6 +6,7 @@ import { ExcelService } from '../../src/services/excel.service';
 import dotenv from 'dotenv';
 import path from 'path';
 import { addJournalLines } from '../util/journal';
+import { navigateToHomePage, navigateToTile, navigateToTileLink, navigateToTileSideLink } from '../util/navigation';
 
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 let testLoopStartTime: Date = new Date(), testLoopEndTime: Date = new Date();
@@ -35,15 +36,15 @@ test.afterAll(async ({ }) => {
 });
 
 test.describe('Post Manual Journal', () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ page }, testInfo) => {
     // Navigate to where the process begins
-    await page.goto(setupData[0]);
+    await navigateToHomePage(page);
 
-    await page.getByRole('link', { name: 'General Accounting', exact: true }).click();
-    await page.getByTitle('Journals').click();
+    await navigateToTile(page, 'General Accounting', testInfo);
 
-    await page.getByRole('link', { name: 'Tasks' }).click();
-    await page.getByRole('link', { name: 'Create Journal', exact: true }).click();
+    await navigateToTileLink(page, 'Journals', testInfo);
+
+    await navigateToTileSideLink(page, 'Create Journal', testInfo);
   });
 
   test(`Add Journal Lines`, async ({ page }, testInfo) => {
