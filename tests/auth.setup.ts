@@ -2,7 +2,7 @@ import { test as setup, expect } from '@playwright/test';
 import dotenv from 'dotenv';
 import path from 'path';
 
-dotenv.config({ path: path.resolve(__dirname, '../.env') });
+dotenv.config({ path: path.resolve(__dirname, '../.env'), quiet: true });
 const loginUrl = process.env.LOGINURL!;
 const userName = process.env.ORACLEUSERNAME!;
 const password = process.env.ORACLEPASSWORD!;
