@@ -9,19 +9,19 @@ test.use({ storageState: authFile });
 
 
 
-export async function createCustomer(page: any, testInfo: any, customerItem: any, i: number) {
-    console.log(`Create Customer: ${i}`);
+export async function createAsset(page: any, testInfo: any, assetItem: any, i: number) {
+    console.log(`Create Asset: ${i}`);
     await navUtil.navigateToHomePage(page);
-    await navUtil.navigateToTile(page, 'Receivables', testInfo);
-    await navUtil.navigateToTileLink(page, 'Manage Customers', testInfo);
-    await navUtil.navigateToTileSideLink(page, 'Create', testInfo);
+    await navUtil.navigateToTile(page, 'Supply Chain Execution', testInfo);
+    await navUtil.navigateToTileLink(page, 'Asset Information Management', testInfo);
+    await navUtil.navigateToTileSideLink(page, 'xxx', testInfo);
 
 
 
-    await form.setFormFieldValue(page, 'Name', customerItem.Customer);
-    await form.setFormSelectValue(page, 'Account Adress Set', customerItem["Account Adress Set"]);
-    await form.setFormSelectValue(page, 'Address Line 1', customerItem["Address Line 1"]);
-    await form.setFormSelectValue(page, 'City or Town', customerItem["City or Town"]);
+    await form.setFormFieldValue(page, 'Name', assetItem.Asset);
+    await form.setFormSelectValue(page, 'Account Adress Set', assetItem["Account Adress Set"]);
+    await form.setFormSelectValue(page, 'Address Line 1', assetItem["Address Line 1"]);
+    await form.setFormSelectValue(page, 'City or Town', assetItem["City or Town"]);
 
     await form.submit(page, 'Create');
     await page.waitForLoadState('networkidle');
@@ -29,23 +29,23 @@ export async function createCustomer(page: any, testInfo: any, customerItem: any
     // REFINE this please .. 
     const errorMsg = await page.getByText("Error");
     if (await errorMsg.isVisible()) {
-        assert(false,'Error creating customer');
+        assert(false,'Error creating asset');
         await testInfo.attach(`Error Message`, { body: await page.screenshot(), contentType: 'image/png' });
     } else {
-        assert(true,'Customer created successfully');
-        console.log("Customer Created Successfully");
+        assert(true,'Asset created successfully');
+        console.log("Asset Created Successfully");
     }
 
 
-    // expect(page.locator(`a:has-text("${customerItem.Customer}")`)).toBeVisible();
+    // expect(page.locator(`a:has-text("${assetItem.Asset}")`)).toBeVisible();
 
 
-    // / Select the label for "Customer" (optional, for demonstration)
+    // / Select the label for "Supplier" (optional, for demonstration)
 
 
     //
 
-    await testInfo.attach(`Enter Customer`, { body: await page.screenshot(), contentType: 'image/png' });
+    await testInfo.attach(`Enter Asset`, { body: await page.screenshot(), contentType: 'image/png' });
 }
 
 

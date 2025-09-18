@@ -55,3 +55,9 @@ To get started with Oracle Testing using data within Excel, take a look at: `tes
 - Wait for Oracle process to run .. back end or REST api to trigger the process
 - Log into AFCS and GL to vaidate results
 - Run a BI publisher report to validates all lines from source have been successfully processed into AFCS and GL.
+
+### Creating a Config File
+- Copy lines 1-8 from previously created .ts file, eg. suppleir.ts
+- For lines >12, replace specific words such as supplier to your desired function, eg. createSupplier() > createCustomer()
+- ensure that the lines align with the functions to fufuil the task you are trying to automate 
+- To populate a text box with a fake value, input: "Address Line 1": faker.(type(eg. location/name)).value of the name(eg.street Address)(),
