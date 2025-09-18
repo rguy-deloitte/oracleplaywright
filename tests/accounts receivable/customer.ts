@@ -54,11 +54,11 @@ export async function fakeData(count: number) {
     for (let i = 0; i < count; i++) {
         items.push({
             Customer: faker.person.fullName(),
-            "Name": faker.name.arrayElement(),
+            "Name": faker.person.fullName(),
             "Address Line 1": faker.location.streetAddress(),
             "City or Town": faker.location.city(),
-            "Account Address Set": faker.name.arrayElement(['Primary', 'Secondary']),
-            
+            "Account Address Set": faker.helpers.arrayElement(['Primary', 'Secondary']),
+
             // "Tax Country": 'United States',
             // "Currency": 'USD',
             // "Paid Up": '1000',

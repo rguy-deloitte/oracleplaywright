@@ -75,3 +75,10 @@ export async function fakeData(count: number) {
     }
     return items
 }
+
+
+export type SupplierItem = {
+    Supplier: string;
+    "Business Relationship": string;
+    "Tax Organization Type": string;
+};

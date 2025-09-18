@@ -22,5 +22,5 @@ setup('authenticate', async ({ page }) => {
     // await page.waitForTimeout(10000);    // <-- An alternative approach
 
     // Save storage state into the file.
-    await page.context().storageState({ path: '.auth/auth-state.json' });
+    await page.context().storageState({ path: 'tests/.auth/auth-state.json' });
 });
