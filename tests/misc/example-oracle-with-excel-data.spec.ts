@@ -84,7 +84,7 @@ test.describe('Schedule New Process', () => {
                 do {
                   await page.waitForTimeout(1000);
                   jobStatus = await apiContext.get('./erpintegrations', { params: `?finder=ESSJobStatusRF;requestId=${processNumber}` })
-                    .catch((e) => console.log('Error with api call:', e));
+                    .catch((e: any) => console.log('Error with api call:', e));
                   jobStatusJson = await jobStatus.json();
                   jobRequestStatus = jobStatusJson.items[0].RequestStatus;
                 } while (!['SUCCEEDED', 'CANCELED', 'ERROR', 'ERROR MANUAL RECOVERY', 'EXPIRED', 'FINISHED', 'HOLD', 'VALIDATION FAILED', 'WARNING'].includes(jobRequestStatus));  // See: https://docs.oracle.com/en/cloud/saas/applications-common/25c/oacpr/statuses-of-scheduled-processes.html
