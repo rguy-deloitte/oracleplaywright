@@ -26,7 +26,7 @@ export class ExcelService {
         // const workbook = xlsx.readFile(sourceDataXslxFilePath);
         this.workbook = xlsx.readFile(sourceDataXslxFilePath);
         setupData = (xlsx.utils.sheet_to_json(this.workbook.Sheets[setupDataSheetName], { raw: false, header: 1 }) as any[][]).map((item: any[]) => {return item[1]});
-        loopData = (xlsx.utils.sheet_to_json(this.workbook.Sheets[loopDataSheetName], { raw: false, header: 1 }) as any[][]).map((item: any[]) => {return [item[0], item[1]]});
+        loopData = (xlsx.utils.sheet_to_json(this.workbook.Sheets[loopDataSheetName], { raw: false, header: 1 }) as any[][]).map((item: any[]) => {return [item[0], item[1], item[2]]});
         if (setupData.length === 0 || loopData.length === 0) {
             console.error(`Error with format of Excel file: ${sourceDataXslxFilePath}`);
             process.exit(1);
