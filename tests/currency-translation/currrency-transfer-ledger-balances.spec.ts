@@ -1,16 +1,11 @@
 // Ensure you have the required Excel file in the correct directory: excel-data-files/batch-run-automate.xlsx
-// Run using: npx playwright test tests/general ledger/currency-1.spec.ts --ui
+// Run using: npx playwright test tests/currency-translation/currrency-transfer-ledger-balances.spec.ts --ui
 import { test, expect, type Page } from '@playwright/test';
 import { ExcelService } from '../../src/services/excel.service';
 import dotenv from 'dotenv';
 import path from 'path';
 
 import * as cp from './currency'
-
-// *** TODO ***
-    // - Fix heading in report excel
-    // - make it cancel on error
-// - split the currencies onto separate tabs
 
 dotenv.config({ path: path.resolve(__dirname, '../.env'), quiet: true });
 // *** Note *** Login handled in auth.setup.ts and requires playwright.config.ts -> 
@@ -46,7 +41,7 @@ test.afterAll(async () => {
   if (generateResultsExcelFile) ExcelService.save();
 });
 
-test.describe('Schedule New Process Bermuda', () => {
+test.describe('Transfer Ledger Balances', () => {
 //   test.beforeEach(async ({ page }) => {
 //     // Navigate to where the process begins
 //     await page.goto(setupData[0]);
@@ -60,10 +55,10 @@ test.describe('Schedule New Process Bermuda', () => {
 
   let index = 0;
   loopData.forEach((currentRow, i) => {
-    test(`Accounting Period: ${currentRow[0]}`, async ({ }, testInfo) => {
-    // test(`Accounting Period: ${i}`, async ({ }, testInfo) => {
+    test(`Source Ledger Period: ${currentRow[0]} - ${currentRow[1]}: ${currentRow[2]}`, async ({ }, testInfo) => {
+      test.slow();
 
-        await cp.translateGL(page, testInfo, setupData, currentRow, index);
+      await cp.transferLedgerBalances(page, testInfo, setupData, currentRow, index);
 
         if (skipRatherThanSubmit) {
             await testInfo.attach(`${currentRow[0]} Final Screen (cancelled)...`, { body: await page.screenshot(), contentType: 'image/png' });
@@ -88,7 +83,7 @@ test.describe('Schedule New Process Bermuda', () => {
 
             testLoopEndTime = new Date();
             ExcelService.writeResultsResultRow([currentRow[0], currentRow[1], processNumber, testLoopStartTime, testLoopEndTime, jobRequestStatus]);
-            // await expect(jobRequestStatus).toBe('SUCCEEDED');
+            await expect(jobRequestStatus).toBe('SUCCEEDED');
 
             } else {
                 console.log('Process number not found in the submission confirmation message:', processSubmittedMessage);

@@ -5,11 +5,6 @@ import { ExcelService } from '../../src/services/excel.service';
 import dotenv from 'dotenv';
 import path from 'path';
 
-// *** TODO ***
-    // - Fix heading in report excel
-    // - make it cancel on error
-// - split the currencies onto separate tabs
-
 dotenv.config({ path: path.resolve(__dirname, '../.env'), quiet: true });
 // *** Note *** Login handled in auth.setup.ts and requires playwright.config.ts -> 
 test.describe.configure({ mode: 'serial' });  // Required to ensure tests run in expected order and that beforeAll & afterAll only run once
