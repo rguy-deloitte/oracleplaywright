@@ -1,5 +1,5 @@
 // Ensure you have the required Excel file in the correct directory: excel-data-files/batch-run-automate.xlsx
-// Run using: npx playwright test tests/misc/batch-run-automate.spec.ts --ui
+// Run using: npx playwright test tests/currency-translation/batch-run-automate.spec.ts --ui
 import { test, expect } from '@playwright/test';
 import { ExcelService } from '../../src/services/excel.service';
 import dotenv from 'dotenv';
