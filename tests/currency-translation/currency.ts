@@ -55,9 +55,13 @@ export async function confirmProcessCompletion(page: any, testInfo: any, apiCont
         } while (!['SUCCEEDED', 'CANCELED', 'ERROR', 'ERROR MANUAL RECOVERY', 'EXPIRED', 'FINISHED', 'HOLD', 'VALIDATION FAILED', 'WARNING'].includes(jobRequestStatus));  // See: https://docs.oracle.com/en/cloud/saas/applications-common/25c/oacpr/statuses-of-scheduled-processes.html
 
         testLoopEndTime = new Date();
+        
         return { 
-            rowData: [rowData[0], rowData[1], processNumber, testLoopStartTime, testLoopEndTime, jobRequestStatus],
-            result: jobRequestStatus 
+            rowData: rowData,
+            processNumber: processNumber,
+            testLoopStartTime: testLoopStartTime,
+            testLoopEndTime: testLoopEndTime,
+            requestStatus: jobRequestStatus 
         };
     } else {
         throw new Error('Process number not found in the submission confirmation message.');

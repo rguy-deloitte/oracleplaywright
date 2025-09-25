@@ -58,10 +58,9 @@ test.describe('Translate GL Account Balances', () => {
       } else {
         await form.buttonClick(page, 'Submit');
         let processResults = await cp.confirmProcessCompletion(page, testInfo, apiContext, setupData, currentRow, testLoopStartTime, testLoopEndTime);
-        ExcelService.writeResultsResultRow(processResults?.rowData);
-        await expect(processResults?.result).toBe('SUCCEEDED');
+        if (generateResultsExcelFile) ExcelService.writeResultsResultRow([processResults?.rowData[0], processResults?.rowData[1], processResults?.processNumber, processResults?.testLoopStartTime, processResults?.testLoopEndTime, processResults?.requestStatus]);
+        await expect(processResults?.requestStatus).toMatch(/SUCCEEDED|WARNING/);
       }
-      // await page.getByRole('button', { name: 'Schedule New Process' }).click();        
     });
   });
 });

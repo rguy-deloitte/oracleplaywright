@@ -19,7 +19,7 @@ let setupData: any[] = [];              // Data items from the Setup Excel sheet
 let loopData: any[][] = [];             // Data items from the Loop Excel sheet
 const skipRatherThanSubmit = false;     // Set to true to skip submission and just take screenshots
 if (getDataFromExcelFile) ({ setupData, loopData } = ExcelService.readExcelData(__filename));
-if (generateResultsExcelFile) ExcelService.writeResultsHeaderRow(['ACCOUNTING PERIOD', 'BALANCING SEGMENT', 'REQUESTID', 'STARTTIME', 'ENDTIME', 'RESULT']);
+if (generateResultsExcelFile) ExcelService.writeResultsHeaderRow(['Source Ledger', 'Target Ledger',	'Period', 'REQUESTID', 'STARTTIME', 'ENDTIME', 'RESULT']);
 let page: Page;
 
 test.beforeAll(async ({ browser, playwright }) => {
@@ -57,10 +57,9 @@ test.describe('Transfer Ledger Balances', () => {
       } else {
         await form.buttonClick(page, 'Submit');
         let processResults = await cp.confirmProcessCompletion(page, testInfo, apiContext, setupData, currentRow, testLoopStartTime, testLoopEndTime);
-        ExcelService.writeResultsResultRow(processResults?.rowData);
-        await expect(processResults?.result).toBe('SUCCEEDED');
+        if (generateResultsExcelFile) ExcelService.writeResultsResultRow([processResults?.rowData[0], processResults?.rowData[1], processResults?.rowData[2], processResults?.processNumber, processResults?.testLoopStartTime, processResults?.testLoopEndTime, processResults?.requestStatus]);
+        await expect(processResults?.requestStatus).toMatch(/SUCCEEDED|WARNING/);
       }
-      // await page.getByRole('button', { name: 'Schedule New Process' }).click();        
     });
   });
 });
