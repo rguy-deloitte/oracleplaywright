@@ -17,8 +17,6 @@ export async function setFormSelectValue(page: any, labelText: string, value: st
 
 export async function setFormSelectValueRG(page: any, labelText: string, value: string) {
     await page.getByLabel(labelText, { exact: true }).selectOption(value);
-    // await page.getByLabel(/^Source Ledger$/).selectOption(value);
-    // await page.getByRole('input', { name: labelText }, { exact: true }).click();
 }
 
 export async function setFormCheckBox(page: any, labelText: string, value: boolean) {
@@ -34,7 +32,7 @@ export async function setFormSelectIndex(page: any, labelText: string, index: st
 }
 
 export async function buttonClick(page: any, labelText: string) {
-    await page.getByRole('button', { name: labelText }, { exact: true }).click();
+    await page.getByRole('button', { name: labelText, exact: true }).click();
     // await page.locator('button').getByText(labelText, { exact: true }).click();  <-- Didn't work when I tried it
 }
 
