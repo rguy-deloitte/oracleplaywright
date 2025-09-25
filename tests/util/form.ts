@@ -7,7 +7,8 @@ export async function setFormFieldValue(page: any, labelText: string, value: str
     await inputField.fill(value);
 }
 
-export async function setFormSelectValue(page: any, labelText: string, value: string) {
+// 25 Sept 2025: This has been substituted with the simplified version below. It can be deleted soon if everything still works
+export async function setFormSelectValueTD(page: any, labelText: string, value: string) {
     const supplierLabel = await page.locator('label').getByText(labelText, { exact: true });
     // await supplierLabel.click(); // Optional: interact with the label
     const labelForId = cssEscape(await supplierLabel.getAttribute('for'));
@@ -15,7 +16,7 @@ export async function setFormSelectValue(page: any, labelText: string, value: st
     await selectField.selectOption(value);
 }
 
-export async function setFormSelectValueRG(page: any, labelText: string, value: string) {
+export async function setFormSelectValue(page: any, labelText: string, value: string) {
     await page.getByLabel(labelText, { exact: true }).selectOption(value);
 }
 
