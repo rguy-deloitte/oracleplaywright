@@ -9,15 +9,37 @@ export async function setFormFieldValue(page: any, labelText: string, value: str
 
 // 25 Sept 2025: This has been substituted with the simplified version below. It can be deleted soon if everything still works
 export async function setFormSelectValueTD(page: any, labelText: string, value: string) {
+    // await page.waitForTimeout(10000);
+    // await page.waitForLoadState('networkidle');
+    // await page.waitForTimeout(10000);
+    await page.waitForLoadState('domcontentloaded');
     const supplierLabel = await page.locator('label').getByText(labelText, { exact: true });
     // await supplierLabel.click(); // Optional: interact with the label
     const labelForId = cssEscape(await supplierLabel.getAttribute('for'));
     const selectField = await page.locator(`select#${labelForId}`)
     await selectField.selectOption(value);
+    await page.waitForLoadState('domcontentloaded');
 }
 
 export async function setFormSelectValue(page: any, labelText: string, value: string) {
     await page.getByLabel(labelText, { exact: true }).selectOption(value);
+
+    // Trying to resolve the bug version:
+    /*
+    console.log(labelText, value);
+    // await page.waitForLoadState('networkidle');
+    await page.getByLabel(labelText, { exact: true }).selectOption({ index: 0 });
+    await page.getByLabel(labelText, { exact: true }).selectOption({ index: 1 });
+    await page.getByLabel(labelText, { exact: true }).selectOption({ index: 2 });
+
+    await page.getByLabel(labelText, { exact: true }).selectOption(value);
+    // await page.waitForTimeout(10000);
+    await page.waitForLoadState('domcontentloaded');
+    await page.waitForLoadState('networkidle');
+    console.log('wait for start ...')
+    await page.waitForTimeout(1000)
+    console.log('wait for end ...')
+    */
 }
 
 export async function setFormCheckBox(page: any, labelText: string, value: boolean) {
