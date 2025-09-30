@@ -11,3 +11,4 @@ node_modules/
 *.env*
 /excel-data-files/*results*
 tests/.auth/auth-state.json
+allure-results/

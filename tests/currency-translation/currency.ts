@@ -15,7 +15,6 @@ export async function navigate(page: any, testInfo: any, setupData: any[]) {
 }
 
 export async function translateGLAccountBalances(page: any, testInfo: any, setupData: any[], rowData: any[], i: number) {
-    await page.getByLabel('Data Access Set').click(); // <-- Odd.... but it ain't working without this!
     await form.setFormSelectValue(page, 'Data Access Set', setupData[2]);
     await form.setFormSelectValue(page, 'Ledger or Ledger Set', setupData[3]);
     await form.setFormSelectValue(page, 'Target Currency', setupData[4]);
@@ -24,7 +23,6 @@ export async function translateGLAccountBalances(page: any, testInfo: any, setup
 }
 
 export async function translateGLAccountBalancesGGP(page: any, testInfo: any, setupData: any[], rowData: any[], i: number) {
-    // await page.getByLabel('Data Access Set').click(); // <-- Odd.... but it ain't working without this!
     await form.setFormSelectValue(page, 'Data Access Set', rowData[0]);
     await form.setFormSelectValue(page, 'Ledger or Ledger Set', rowData[1]);
     await form.setFormSelectValue(page, 'Target Currency', rowData[2]);
