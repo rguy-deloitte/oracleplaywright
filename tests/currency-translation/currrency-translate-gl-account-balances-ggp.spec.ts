@@ -51,7 +51,6 @@ test.describe('Translate GL Account Balances (GPP)', () => {
   let index = 0;
   loopData.forEach((currentRow, i) => {
     test(`Accounting Period: ${currentRow[0]}${i}`, async ({ }, testInfo) => {
-      console.log('curr row data:', currentRow.join(','));
       await cp.translateGLAccountBalancesGGP(page, testInfo, setupData, currentRow, index);
 
       if (skipRatherThanSubmit) {
