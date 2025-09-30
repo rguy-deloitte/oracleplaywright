@@ -22,7 +22,10 @@ export async function setFormSelectValueTD(page: any, labelText: string, value: 
 }
 
 export async function setFormSelectValue(page: any, labelText: string, value: string) {
-    await page.getByLabel(labelText, { exact: true }).selectOption(value);
+    const locator = page.getByLabel(labelText, { exact: true });
+    await locator.click(); // Ensure the dropdown is focused
+    // await page.waitForTimeout(1000); // Optional: wait for any animations or loading  
+    await locator.selectOption(value);
 
     // Trying to resolve the bug version:
     /*
