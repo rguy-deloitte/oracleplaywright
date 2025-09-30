@@ -50,14 +50,14 @@ export async function createAsset(page: any, testInfo: any, assetItem: any, i: n
 
 
 export async function fakeData(count: number) {
-    const items = [];
+    const items: any[] = [];
     for (let i = 0; i < count; i++) {
         items.push({
             Customer: faker.person.fullName(),
-            "Name": faker.name.arrayElement(),
-            "Address Line 1": faker.location.streetAddress(),
-            "City or Town": faker.location.city(),
-            "Account Address Set": faker.name.arrayElement(['Primary', 'Secondary']),
+            // "Name": faker.person.fullName().arrayElement(),
+            // "Address Line 1": faker.location.streetAddress(),
+            // "City or Town": faker.location.city(),
+            // "Account Address Set": faker.name.arrayElement(['Primary', 'Secondary']),
             
             // "Tax Country": 'United States',
             // "Currency": 'USD',

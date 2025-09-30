@@ -50,7 +50,7 @@ export async function createCustomer(page: any, testInfo: any, customerItem: any
 
 
 export async function fakeData(count: number) {
-    const items = [];
+    const items: any[] = [];
     for (let i = 0; i < count; i++) {
         items.push({
             Customer: faker.person.fullName(),
