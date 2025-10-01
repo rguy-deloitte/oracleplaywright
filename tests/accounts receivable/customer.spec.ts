@@ -9,12 +9,8 @@ let customerItems: any[] = [];
 // *** Note *** Login handled in auth.setup.ts
 test.describe.configure({ mode: 'serial' });  // Required to ensure tests run in expected order and that beforeAll & afterAll only run once
 
-// test.beforeAll(async ({ playwright }) => {
 
-//     customerItems = await csTest.fakeData(5);
-// });
-
-test.describe('Supplier Tests', async () => {
+test.describe('Customer Tests', async () => {
     
     let index = 0;
     customerItems = await csTest.fakeData(2);

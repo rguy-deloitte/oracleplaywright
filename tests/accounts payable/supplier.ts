@@ -49,7 +49,7 @@ export async function createSupplier(page: any, testInfo: any, supplierItem: any
 
 
 export async function fakeData(count: number) {
-    const items = [];
+    const items: any[] = [];
     for (let i = 0; i < count; i++) {
         items.push({
             Supplier: faker.company.name().substring(0, 30), // Limit to 30 characters
@@ -75,3 +75,10 @@ export async function fakeData(count: number) {
     }
     return items
 }
+
+
+export type SupplierItem = {
+    Supplier: string;
+    "Business Relationship": string;
+    "Tax Organization Type": string;
+};

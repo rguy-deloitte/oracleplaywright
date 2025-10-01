@@ -13,8 +13,8 @@ export async function createCustomer(page: any, testInfo: any, customerItem: any
     console.log(`Create Customer: ${i}`);
     await navUtil.navigateToHomePage(page);
     await navUtil.navigateToTile(page, 'Receivables', testInfo);
-    await navUtil.navigateToTileLink(page, 'Manage Customers', testInfo);
-    await navUtil.navigateToTileSideLink(page, 'Create', testInfo);
+    await navUtil.navigateToLeftNavLink(page, 'Manage Customers', testInfo);
+    // await navUtil.navigateToTileSideLink(page, 'Create', testInfo);
 
 
 
@@ -37,10 +37,10 @@ export async function createCustomer(page: any, testInfo: any, customerItem: any
     }
 
 
-    // expect(page.locator(`a:has-text("${supplierItem.Supplier}")`)).toBeVisible();
+    // expect(page.locator(`a:has-text("${customerItem.Customer}")`)).toBeVisible();
 
 
-    // / Select the label for "Supplier" (optional, for demonstration)
+    // / Select the label for "Customer" (optional, for demonstration)
 
 
     //
@@ -50,21 +50,15 @@ export async function createCustomer(page: any, testInfo: any, customerItem: any
 
 
 export async function fakeData(count: number) {
-    const items = [];
+    const items: any[] = [];
     for (let i = 0; i < count; i++) {
         items.push({
-            Supplier: faker.company.name().substring(0, 30), // Limit to 30 characters
-            "Name": faker.helpers.arrayElement(['Customer 1', 'Customer 99']),
-            "Account Address Set": faker.helpers.arrayElement(["ACE CORP Data Set",
-                "ACE_1",
-                "ACE_PAYMENT_RDS",
-                "ADECA Reference Set",
-                "75 Sales",
-                "75 Human Resources",
-                "5355",
-                "Other" ]),
-            "Address Line 1": faker.helpers.arrayElement(['United Kingdom', 'France', 'United States', 'Canada', 'Australia']),
-            "D-U-N-S Number": faker.number.int({ min: 100000000, max: 999999999 }).toString(),
+            Customer: faker.person.fullName(),
+            "Name": faker.person.fullName(),
+            "Address Line 1": faker.location.streetAddress(),
+            "City or Town": faker.location.city(),
+            "Account Address Set": faker.helpers.arrayElement(['Primary', 'Secondary']),
+
             // "Tax Country": 'United States',
             // "Currency": 'USD',
             // "Paid Up": '1000',

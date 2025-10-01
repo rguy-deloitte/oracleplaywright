@@ -2,7 +2,7 @@ import { test as setup, expect } from '@playwright/test';
 import dotenv from 'dotenv';
 import path from 'path';
 
-dotenv.config({ path: path.resolve(__dirname, '../.env') });
+dotenv.config({ path: path.resolve(__dirname, '../.env'), quiet: true });
 const loginUrl = process.env.LOGINURL!;
 const userName = process.env.ORACLEUSERNAME!;
 const password = process.env.ORACLEPASSWORD!;
@@ -22,5 +22,5 @@ setup('authenticate', async ({ page }) => {
     // await page.waitForTimeout(10000);    // <-- An alternative approach
 
     // Save storage state into the file.
-    await page.context().storageState({ path: './tests/.auth/auth-state.json' });
+    await page.context().storageState({ path: 'tests/.auth/auth-state.json' });
 });
