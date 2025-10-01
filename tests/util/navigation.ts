@@ -1,4 +1,4 @@
-import test from "@playwright/test";
+import test, { Page } from "@playwright/test";
 import dotenv from 'dotenv';
 import path from "path";
 
@@ -35,4 +35,19 @@ export async function navigateToTileSideLink(page: any, link: string, testInfo: 
         await page.waitForLoadState('networkidle');
         await testInfo.attach(`Manage Task & ${link}`, { body: await page.screenshot(), contentType: 'image/png' });
     });
+}
+
+// Takes the name of a collapsible section of the form and returns the Locator object for
+// that section. This is useful if two fields have the same name but are in separate sections.
+export async function getSectionFromCollapse(page: Page, buttonTitle: string){
+  let collapseButtonLocator = await page.getByTitle(buttonTitle, { exact: true })
+  let collapseButtonId = await collapseButtonLocator.getAttribute("aria-controls");
+
+  if (collapseButtonId == null) {
+      throw Error(`Button '${buttonTitle}' has no 'aria-controls' attribute`);
+  }
+
+  collapseButtonId = collapseButtonId.replace("::content", "");
+
+  return page.locator(`id=${collapseButtonId}`);
 }
