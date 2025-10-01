@@ -4,9 +4,8 @@ import * as navUtil from '../util/navigation';
 import * as form from '../util/form';
 import { faker } from '@faker-js/faker';
 import { assert } from 'console';
-const authFile = path.join(__dirname, '../../.auth/auth-state.json');
+const authFile = path.join(__dirname, '../.auth/auth-state.json');
 test.use({ storageState: authFile });
-
 
 
 export async function createSupplier(page: any, testInfo: any, supplierItem: any, i: number) {
@@ -15,8 +14,6 @@ export async function createSupplier(page: any, testInfo: any, supplierItem: any
     await navUtil.navigateToTile(page, 'Procurement', testInfo);
     await navUtil.navigateToTileLink(page, 'Suppliers', testInfo);
     await navUtil.navigateToTileSideLink(page, 'Create Supplier', testInfo);
-
-
 
     await form.setFormFieldValue(page, 'Supplier', supplierItem.Supplier);
     await form.setFormSelectValue(page, 'Business Relationship', supplierItem["Business Relationship"]);

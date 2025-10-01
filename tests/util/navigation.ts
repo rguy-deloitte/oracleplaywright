@@ -20,6 +20,14 @@ export async function navigateToTile(page: any, name: string, testInfo: any) {
     });
 }
 
+export async function navigateToLeftNavLink(page: any, link: string, testInfo: any) {
+    await test.step(`Navigate to ${link}`, async () => {
+        await page.locator('a.app-nav-label').getByText(link).click();
+        await page.waitForLoadState('networkidle');
+        await testInfo.attach(`Select ${link}`, { body: await page.screenshot(), contentType: 'image/png' });
+    });
+}
+
 export async function navigateToTileLink(page: any, link: string, testInfo: any) {
     await test.step(`Navigate to ${link}`, async () => {
         await page.getByTitle(link).click();
