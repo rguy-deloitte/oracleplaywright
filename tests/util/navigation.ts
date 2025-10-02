@@ -30,9 +30,27 @@ export async function navigateToLeftNavLink(page: any, link: string, testInfo: a
 
 export async function navigateToTileLink(page: any, link: string, testInfo: any) {
     await test.step(`Navigate to ${link}`, async () => {
+        console.log(`Clicking on link with title: ${link}`, await page.getByTitle(link));
         await page.getByTitle(link).click();
         await page.waitForLoadState('networkidle');
         await testInfo.attach(`Select ${link}`, { body: await page.screenshot(), contentType: 'image/png' });
+    });
+}
+
+
+export async function navigateByRef(page: any, ref: string, testInfo: any) {
+    await test.step(`Navigate to ${ref}`, async () => {
+        console.log(`Clicking on link with title: ${ref}`);
+        await page.locator(ref).click();
+        await page.waitForLoadState('networkidle');
+        await testInfo.attach(`Select ${ref}`, { body: await page.screenshot(), contentType: 'image/png' });
+    });
+}
+export async function clickButtonByName(page: any, buttonName: string, testInfo: any) {
+    await test.step(`Click ${buttonName} button`, async () => {
+        await page.getByRole('button', { name: buttonName }).click();
+        await page.waitForLoadState('networkidle');
+        await testInfo.attach(`Click ${buttonName} button`, { body: await page.screenshot(), contentType: 'image/png' });
     });
 }
 

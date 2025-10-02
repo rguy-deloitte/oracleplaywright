@@ -55,6 +55,14 @@ export default defineConfig({
       dependencies: ['configuration'],
     },
 
+    {
+      name: 'Report performance',
+      use: {  ...devices['Desktop Edge'], 
+      storageState: './tests/.auth/auth-state.json',},
+      testMatch: /(reports)\/.*.spec.ts/g,
+      dependencies: ['configuration'],
+    },
+
     // {
     //   name: 'firefox',
     //   use: { ...devices['Desktop Firefox'] },
