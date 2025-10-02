@@ -22,8 +22,7 @@ export default defineConfig({
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : 1,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  // reporter: 'html',
-  reporter: [["line"], ["allure-playwright"]],
+  reporter: [["line"], ['html'], ["allure-playwright"]],
 
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
@@ -37,12 +36,22 @@ export default defineConfig({
   /* Configure projects for major browsers */
   projects: [
     // Setup project
-    { name: 'oracleSetup', testMatch: /.*\.setup\.ts/ },
+    { name: 'configuration', testMatch: /.*\.setup\.ts/ },
 
     {
-      name: 'chromium',
-      use: {  ...devices['Desktop Chrome'], storageState: '.auth/auth-state.json',},
-      dependencies: ['oracleSetup'],
+      name: 'General Ledger',
+      use: {  ...devices['Desktop Edge'], 
+      storageState: './tests/.auth/auth-state.json',},
+      testMatch: /(manual-journals|translation)\/.*.spec.ts/g,
+      dependencies: ['configuration'],
+    },
+
+    {
+      name: 'Sub Ledgers',
+      use: {  ...devices['Desktop Edge'], 
+      storageState: './tests/.auth/auth-state.json',},
+      testMatch: /(account-receivables|account-payables|cash-management|fixed-assets)\/.*.spec.ts/g,
+      dependencies: ['configuration'],
     },
 
     // {
