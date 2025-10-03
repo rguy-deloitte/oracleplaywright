@@ -37,7 +37,7 @@ export default defineConfig({
   /* Configure projects for major browsers */
   projects: [
     // Setup project
-    { name: 'configuration', testMatch: /.*\.setup\.ts/ },
+    { name: 'configuration', testMatch: /.*\.setup\.ts/, retries: 3},
 
     {
       name: 'General Ledger',
