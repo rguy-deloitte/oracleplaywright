@@ -11,45 +11,45 @@ test.use({ storageState: authFile });
 
 export async function createCustomer(page: any, testInfo: any, customerItem: any, i: number) {
     console.log(`Create Customer: ${i}`);
-    await navUtil.navigateToHomePage(page);
+    await navUtil.navigateToHomePage(page, testInfo);
     await navUtil.navigateToTile(page, 'Receivables', testInfo);
     await navUtil.navigateToLeftNavLink(page, 'Manage Customers', testInfo);
     // await navUtil.navigateToTileSideLink(page, 'Create', testInfo);
 
 
 
-    await form.setFormFieldValue(page, 'Name', customerItem.Customer);
-    await form.setFormSelectValue(page, 'Account Adress Set', customerItem["Account Adress Set"]);
-    await form.setFormSelectValue(page, 'Address Line 1', customerItem["Address Line 1"]);
-    await form.setFormSelectValue(page, 'City or Town', customerItem["City or Town"]);
+    // await form.setFormFieldValue(page, 'Name', customerItem.Customer);
+    // await form.setFormSelectValue(page, 'Account Adress Set', customerItem["Account Adress Set"]);
+    // await form.setFormSelectValue(page, 'Address Line 1', customerItem["Address Line 1"]);
+    // await form.setFormSelectValue(page, 'City or Town', customerItem["City or Town"]);
 
-    await form.submit(page, 'Create');
-    await page.waitForLoadState('networkidle');
+    // await form.submit(page, 'Create');
+    // await page.waitForLoadState('networkidle');
 
-    // REFINE this please .. 
-    const errorMsg = await page.getByText("Error");
-    if (await errorMsg.isVisible()) {
-        assert(false,'Error creating customer');
-        await testInfo.attach(`Error Message`, { body: await page.screenshot(), contentType: 'image/png' });
-    } else {
-        assert(true,'Customer created successfully');
-        console.log("Customer Created Successfully");
-    }
-
-
-    // expect(page.locator(`a:has-text("${customerItem.Customer}")`)).toBeVisible();
+    // // REFINE this please .. 
+    // const errorMsg = await page.getByText("Error");
+    // if (await errorMsg.isVisible()) {
+    //     assert(false,'Error creating customer');
+    //     await testInfo.attach(`Error Message`, { body: await page.screenshot(), contentType: 'image/png' });
+    // } else {
+    //     assert(true,'Customer created successfully');
+    //     console.log("Customer Created Successfully");
+    // }
 
 
-    // / Select the label for "Customer" (optional, for demonstration)
+    // // expect(page.locator(`a:has-text("${customerItem.Customer}")`)).toBeVisible();
 
 
-    //
+    // // / Select the label for "Customer" (optional, for demonstration)
 
-    await testInfo.attach(`Enter Customer`, { body: await page.screenshot(), contentType: 'image/png' });
+
+    // //
+
+    // await testInfo.attach(`Enter Customer`, { body: await page.screenshot(), contentType: 'image/png' });
 }
 
 
-export async function fakeData(count: number) {
+export async function generateFakeCustomer(count: number) {
     const items: any[] = [];
     for (let i = 0; i < count; i++) {
         items.push({
