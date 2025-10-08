@@ -26,17 +26,6 @@ test.describe('Create new supplier', async () => {
       await fillSupplierDetails(page, supplierData, testInfo);
 
       await clickButtonByName(page, 'Create');
-
-      // const errorMsg = page.getByText("Error");
-      // if (await errorMsg.isVisible()) {
-      //   if (testInfo) {
-      //     await testInfo.attach(`Error Message`, { body: await page.screenshot(), contentType: 'image/png' });
-      //   }
-      //   throw Error("Failed to create supplier")
-      // } 
-      // if (testInfo) {
-      //   await testInfo.attach(`Supplier submitted`, { body: await page.screenshot(), contentType: 'image/png' });
-      // }
   
       await submitSupplier(page, testInfo);
     });

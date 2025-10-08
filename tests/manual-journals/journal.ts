@@ -158,8 +158,35 @@ export async function addJournalLineDetails(page: Page, data: Record<string, any
 
     expect(await tableRows.getAttribute("_rowcount")).toEqual(data.length.toString());
 
+    const errorMsg = page.getByText("Error");
+    if (await errorMsg.isVisible()) {
+      const errorText = (await errorMsg.allTextContents()).join(" ");
+      if (testInfo) {
+        await testInfo.attach(errorText, { body: await page.screenshot(), contentType: 'image/png' });
+      }
+      throw Error(`Failed to create journal (${errorText})`)
+    } 
+
     if (testInfo) {
       await testInfo.attach("Journal details filled", { body: await page.screenshot(), contentType: 'image/png' });
     }
   });
+}
+
+export async function addNewJournal(page: Page, testInfo?: TestInfo) {
+  await page.getByRole('link', { name: 'Journal Actions' }).click();
+  await page.getByText('Add', { exact: true }).click();
+  await forms.waitForStablePage(page);
+
+  const errorMsg = page.getByText("Error");
+  if (await errorMsg.isVisible()) {
+    const errorText = (await errorMsg.allTextContents()).join(" ");
+    if (testInfo) {
+      await testInfo.attach(errorText, { body: await page.screenshot(), contentType: 'image/png' });
+    }
+    throw Error(`Failed to create journal (${errorText})`)
+  } 
+  if (testInfo) {
+    await testInfo.attach(`Journal added`, { body: await page.screenshot(), contentType: 'image/png' });
+  }
 }

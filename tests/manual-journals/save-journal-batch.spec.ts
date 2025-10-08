@@ -59,4 +59,22 @@ test.describe('Save Manual Journal Entries', () => {
       };
     });
   };
+
+  test("Save journal with invalid accounting date", async ({ page }, testInfo) => {
+      const batchData = generateFakeJournalBatch(1, 10);
+      batchData['Journals'][0]['Accounting Date'] = "3/10/27"
+      test.setTimeout(9000000);
+      
+      await fillJournalBatchDetails(page, batchData, testInfo);
+
+      const journalData = batchData['Journals'];
+
+      for (let journalNo = 0; journalNo < journalData.length; journalNo++) {
+        await fillJournalDetails(page, journalData[journalNo], testInfo);
+
+        await addJournalLineDetails(page, journalData[journalNo]['Journal Lines'], testInfo);
+
+        // Press Add Journal button and wait for clearing
+      };
+    });
 });
