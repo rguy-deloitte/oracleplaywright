@@ -5,20 +5,24 @@ import path from "path";
 
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
-// Navigate page to the login url specified in '.env' file
-export async function navigateToHomePage(page: Page, testInfo?: TestInfo) {
-    await test.step('Access Home Page', async () => {
-        let waitForPage = waitForStablePage(page);
-        const url = process.env.LOGINURL;
-        if (url == undefined) {
-            throw Error("LOGINURL not set in environment, check './.env' file");
-        }
+// Navigate page to the provided url
+export async function navigateToUrl(page: Page, url: string, testInfo?: TestInfo, testStepDescription?: string) {
+    if (testStepDescription == undefined) { testStepDescription = 'Access URL' };
+    await test.step(testStepDescription, async () => {
         await page.goto(url);
-        await waitForPage;
         if (testInfo) {
-            await testInfo.attach("Access home page", { body: await page.screenshot(), contentType: 'image/png' });
+            await testInfo.attach(testStepDescription, { body: await page.screenshot(), contentType: 'image/png' });
         }
     });
+}
+
+// Navigate page to the login url specified in '.env' file
+export async function navigateToHomePage(page: Page, testInfo?: TestInfo) {
+    const url = process.env.LOGINURL;
+    if (url == undefined) {
+            throw Error("LOGINURL not set in environment, check './.env' file");
+    }
+    await navigateToUrl(page, url, testInfo, 'Access Home Page');
 }
 
 export async function navigateToTile(page: Page, name: string, testInfo?: TestInfo) {
