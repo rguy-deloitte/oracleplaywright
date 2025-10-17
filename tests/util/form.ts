@@ -1,4 +1,4 @@
-import { Locator, Page } from "@playwright/test";
+import { Locator, Page, expect } from "@playwright/test";
 
 
 export async function waitForCursor(page: Page, interval: number = 100) {
@@ -17,7 +17,7 @@ export async function waitForCursor(page: Page, interval: number = 100) {
 }
 
 export async function waitForStablePage(page: Page) {
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("load");
     await page.evaluate(() => {
         return new Promise((resolve) => {
             let timeout: any;
@@ -47,67 +47,147 @@ export async function waitForStablePage(page: Page) {
 }
 
 export async function fillTextboxByName(page: Page, name: string, value: string, 
-                                      options: {pageSection?: Locator, 
-                                                errorIfEmpty?: boolean } = {}) {
-    if (value || options.errorIfEmpty) {
-        const textBox = (options.pageSection) ? options.pageSection.getByRole('textbox', { name: name }) : 
-                                                page.getByRole('textbox', { name: name });
-        await textBox.fill(value);
-        await textBox.blur();
-        await waitForStablePage(page);
+                                        options: {pageSection?: Locator, 
+                                                  errorIfNoValue?: boolean,
+                                                  errorIfNoField?: boolean } = {}) {
+
+    const errorIfNoValue = (options.errorIfNoValue == undefined) ? false : options.errorIfNoValue;
+    const errorIfNoField = (options.errorIfNoField == undefined) ? true : options.errorIfNoField;
+
+    if (value == undefined) {
+        if (errorIfNoValue) {
+            throw Error(`Value wasn't provided for required field ${name}`)
+        } else {
+            return;
+        }
     }
+
+    const textBox = (options.pageSection) ? options.pageSection.getByRole('textbox', { name: name, exact: true }) : 
+                                            page.getByRole('textbox', { name: name, exact: true });
+
+    if (errorIfNoField) {
+        await expect(textBox).toBeVisible();
+    }
+
+    await textBox.fill(value);
+    await textBox.blur();
+    await waitForStablePage(page);
 }
 
 export async function fillComboboxByName(page: Page, name: string, value: string, 
-                                      options: {pageSection?: Locator, 
-                                                errorIfEmpty?: boolean } = {}) {
-    if (value || options.errorIfEmpty) {
-        const comboBox = (options.pageSection) ? options.pageSection.getByRole('combobox', { name: name }) : 
-                                                 page.getByRole('combobox', { name: name });
-        await comboBox.fill(value);
-        await comboBox.blur();
-        await waitForStablePage(page);
+                                         options: {pageSection?: Locator, 
+                                                   errorIfNoValue?: boolean,
+                                                   errorIfNoField?: boolean } = {}) {
+
+    const errorIfNoValue = (options.errorIfNoValue == undefined) ? false : options.errorIfNoValue;
+    const errorIfNoField = (options.errorIfNoField == undefined) ? true : options.errorIfNoField;
+
+    if (value == undefined) {
+        if (errorIfNoValue) {
+            throw Error(`Value wasn't provided for required field ${name}`)
+        } else {
+            return;
+        }
     }
+
+    const comboBox = (options.pageSection) ? options.pageSection.getByRole('combobox', { name: name, exact: true }) : 
+                                                page.getByRole('combobox', { name: name, exact: true });
+
+    if (errorIfNoField && !await comboBox.isVisible()) {
+        throw Error(`Form field for ${name} is not editable`)
+    }
+
+    await comboBox.fill(value);
+    await comboBox.blur();
+    await waitForStablePage(page);
 }
 
 export async function selectComboboxByName(page: Page, name: string, value: string, 
                                            options: {pageSection?: Locator, 
-                                                     errorIfEmpty?: boolean } = {}) {
-    if (value || options.errorIfEmpty) {
-        const comboBox = (options.pageSection) ? options.pageSection.getByRole('combobox', { name: name }) : 
-                                                 page.getByRole('combobox', { name: name });
-        await comboBox.selectOption(value);
-        await comboBox.blur();
-        await waitForStablePage(page);
+                                                     errorIfNoValue?: boolean,
+                                                     errorIfNoField?: boolean } = {}) {
+
+    const errorIfNoValue = (options.errorIfNoValue == undefined) ? false : options.errorIfNoValue;
+    const errorIfNoField = (options.errorIfNoField == undefined) ? true : options.errorIfNoField;
+
+    if (value == undefined) {
+        if (errorIfNoValue) {
+            throw Error(`Value wasn't provided for required field ${name}`)
+        } else {
+            return;
+        }
     }
+
+    const comboBox = (options.pageSection) ? options.pageSection.getByRole('combobox', { name: name, exact: true }) : 
+                                                page.getByRole('combobox', { name: name, exact: true });
+
+    if (errorIfNoField && !await comboBox.isVisible()) {
+        throw Error(`Form field for ${name} is not editable`)
+    }
+
+    await comboBox.selectOption(value);
+    await comboBox.blur();
+    await waitForStablePage(page);
 }
 
 export async function clickTextboxByName(page: Page, name: string, value: string, 
                                          options: {pageSection?: Locator, 
-                                                   errorIfEmpty?: boolean } = {}) {
-    if (value || options.errorIfEmpty) {
-        const textBox = (options.pageSection) ? options.pageSection.getByRole('textbox', { name: name }) : 
-                                                page.getByRole('textbox', { name: name });
-        await textBox.click();
-        await waitForStablePage(page);
-        await page.getByRole('gridcell', { name: value, exact: true }).click();
-        await textBox.blur();
-        await waitForStablePage(page);
+                                                   errorIfNoValue?: boolean,
+                                                   errorIfNoField?: boolean } = {}) {
+
+    const errorIfNoValue = (options.errorIfNoValue == undefined) ? false : options.errorIfNoValue;
+    const errorIfNoField = (options.errorIfNoField == undefined) ? true : options.errorIfNoField;
+
+    if (value == undefined) {
+        if (errorIfNoValue) {
+            throw Error(`Value wasn't provided for required field ${name}`)
+        } else {
+            return;
+        }
     }
+
+    const textBox = (options.pageSection) ? options.pageSection.getByRole('textbox', { name: name, exact: true }) : 
+                                            page.getByRole('textbox', { name: name, exact: true });
+
+    if (errorIfNoField && !await textBox.isVisible()) {
+        throw Error(`Form field for ${name} is not editable`)
+    }
+
+    await textBox.click();
+    await waitForStablePage(page);
+    await page.getByRole('gridcell', { name: value, exact: true }).click();
+    await textBox.blur();
+    await waitForStablePage(page);
 }
 
 export async function clickComboboxByName(page: Page, name: string, value: string, 
-                                         options: {pageSection?: Locator, 
-                                                   errorIfEmpty?: boolean } = {}) {
-    if (value || options.errorIfEmpty) {
-        const comboBox = (options.pageSection) ? options.pageSection.getByRole('combobox', { name: name }) : 
-                                                 page.getByRole('combobox', { name: name });
-        await comboBox.click();
-        await waitForStablePage(page);
-        await page.getByRole('gridcell', { name: value, exact: true }).click();
-        await comboBox.blur();
-        await waitForStablePage(page);
+                                          options: {pageSection?: Locator, 
+                                                    errorIfNoValue?: boolean,
+                                                    errorIfNoField?: boolean } = {}) {
+
+    const errorIfNoValue = (options.errorIfNoValue == undefined) ? false : options.errorIfNoValue;
+    const errorIfNoField = (options.errorIfNoField == undefined) ? true : options.errorIfNoField;
+
+    if (value == undefined) {
+        if (errorIfNoValue) {
+            throw Error(`Value wasn't provided for required field ${name}`)
+        } else {
+            return;
+        }
     }
+
+    const comboBox = (options.pageSection) ? options.pageSection.getByRole('combobox', { name: name, exact: true }) : 
+                                                 page.getByRole('combobox', { name: name, exact: true });
+
+    if (errorIfNoField && !await comboBox.isVisible()) {
+        throw Error(`Form field for ${name} is not editable`)
+    }
+
+    await comboBox.click();
+    await waitForStablePage(page);
+    await page.getByRole('gridcell', { name: value, exact: true }).click();
+    await comboBox.blur();
+    await waitForStablePage(page);
 }
 
 // Takes the name of a collapsible section of the form and returns the Locator object for
