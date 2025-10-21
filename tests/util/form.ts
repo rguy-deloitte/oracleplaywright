@@ -146,7 +146,8 @@ export async function comboFillAndEnter(page: any, labelText: string, value: str
 export async function setFormSelectValue(page: any, labelText: string, value: string) {
     const locator = page.getByLabel(labelText, { exact: true });
     await locator.click();  // Ensure the dropdown is focused
-    await locator.selectOption(value);
+    await locator.selectOption(value.trim());
+    await locator.press('Enter');
 }
 
 // Needs rewriting to fit new function format
