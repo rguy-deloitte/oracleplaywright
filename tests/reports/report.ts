@@ -23,7 +23,12 @@ export async function navigateToReport(page: any, testInfo: any, reportName: any
     await newPage.waitForLoadState('networkidle');
     await testInfo.attach(`Report Catalog`, { body: await newPage.screenshot(), contentType: 'image/png' });
     
-    
+    const startTime = Date.now();
+    // add the paramter for report name
+
+    // performance bench march ... 
+    // exeuction time in seconds.. 
+     // write .. 
 
 }
 
