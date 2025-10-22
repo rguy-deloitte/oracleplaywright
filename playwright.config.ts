@@ -37,7 +37,7 @@ export default defineConfig({
   /* Configure projects for major browsers */
   projects: [
     // Setup project
-    { name: 'configuration', testMatch: /.*\.setup\.ts/ },
+    { name: 'configuration', testMatch: /.*\.setup\.ts/, retries: 3},
 
     {
       name: 'General Ledger',
@@ -56,10 +56,18 @@ export default defineConfig({
     },
 
     {
-      name: 'Report performance',
+      name: 'Reporting',
       use: {  ...devices['Desktop Edge'], 
       storageState: './tests/.auth/auth-state.json',},
-      testMatch: /(reports)\/.*.spec.ts/g,
+      testMatch: /(reporting)\/.*.spec.ts/g,
+      dependencies: ['configuration'],
+    },
+
+    {
+      name: 'All',
+      use: {  ...devices['Desktop Edge'], 
+      storageState: './tests/.auth/auth-state.json',},
+      testMatch: /.*.spec.ts/g,
       dependencies: ['configuration'],
     },
 

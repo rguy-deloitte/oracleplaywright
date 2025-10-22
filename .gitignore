@@ -10,5 +10,6 @@ node_modules/
 /tests/.auth/*
 *.env*
 /excel-data-files/*results*
+/excel-data-files/tmp/*
 tests/.auth/auth-state.json
 allure-results/

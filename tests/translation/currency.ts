@@ -39,7 +39,7 @@ export async function transferLedgerBalances(page: any, testInfo: any, setupData
     await form.setFormSelectValue(page, 'Chart of Accounts Mapping', setupData[4]);
     await form.setFormSelectValue(page, 'Amount Type', setupData[5]);
     await form.setFormSelectValue(page, 'Source Ledger Period', rowData[2]);
-    await form.setFormSelectValue(page, 'Target Ledger Period', rowData[2]);
+    await form.setFormSelectValue(page, 'Target Ledger Period', rowData[3]);
     await form.setFormCheckBox(page, 'Run Journal Import', setupData[6].toLowerCase() == 'true');
     await form.setFormCheckBox(page, 'Create Summary Journals', setupData[7].toLowerCase() == 'true');
     await form.setFormCheckBox(page, 'Run Automatic Posting', setupData[8].toLowerCase() == 'true');
@@ -57,11 +57,11 @@ export async function confirmProcessCompletion(page: any, testInfo: any, apiCont
     if (processNumber) {
         let jobStatus, jobStatusJson, jobRequestStatus = '';
         do {
-        await page.waitForTimeout(1000);
-        jobStatus = await apiContext.get('./erpintegrations', { params: `?finder=ESSJobStatusRF;requestId=${processNumber}` })
-            .catch((e) => console.log('Error with api call:', e));
-        jobStatusJson = await jobStatus.json();
-        jobRequestStatus = jobStatusJson.items[0].RequestStatus;
+            await page.waitForTimeout(2000);
+            jobStatus = await apiContext.get('./erpintegrations', { params: `?finder=ESSJobStatusRF;requestId=${processNumber}` })
+                .catch((e) => console.log('Error with api call:', e));
+            jobStatusJson = await jobStatus.json();
+            jobRequestStatus = jobStatusJson.items[0].RequestStatus;
         } while (!['SUCCEEDED', 'CANCELED', 'ERROR', 'ERROR MANUAL RECOVERY', 'EXPIRED', 'FINISHED', 'HOLD', 'VALIDATION FAILED', 'WARNING'].includes(jobRequestStatus));  // See: https://docs.oracle.com/en/cloud/saas/applications-common/25c/oacpr/statuses-of-scheduled-processes.html
 
         testLoopEndTime = new Date();
