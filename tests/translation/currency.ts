@@ -28,7 +28,6 @@ export async function translateGLAccountBalancesGGP(page: any, testInfo: any, se
     await form.setFormSelectValue(page, 'Target Currency', rowData[2]);
     await form.setFormSelectValue(page, 'Accounting Period', rowData[3]);
     if (rowData[4]) {
-        console.log(rowData[4]);
         await form.comboFillAndEnter(page, 'Balancing Segment', rowData[4]);
     }
 }
@@ -65,14 +64,16 @@ export async function confirmProcessCompletion(page: any, testInfo: any, apiCont
         } while (!['SUCCEEDED', 'CANCELED', 'ERROR', 'ERROR MANUAL RECOVERY', 'EXPIRED', 'FINISHED', 'HOLD', 'VALIDATION FAILED', 'WARNING'].includes(jobRequestStatus));  // See: https://docs.oracle.com/en/cloud/saas/applications-common/25c/oacpr/statuses-of-scheduled-processes.html
 
         testLoopEndTime = new Date();
-        
-        return { 
+
+        const runResults = { 
             rowData: rowData,
             processNumber: processNumber,
             testLoopStartTime: testLoopStartTime,
             testLoopEndTime: testLoopEndTime,
             requestStatus: jobRequestStatus 
         };
+        await testInfo.attach('Run Results', { body: JSON.stringify(runResults, null, 2), contentType: 'application/json' }); 
+        return runResults;
     } else {
         throw new Error('Process number not found in the submission confirmation message.');
     }
