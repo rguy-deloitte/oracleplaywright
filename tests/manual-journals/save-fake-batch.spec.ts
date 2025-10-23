@@ -1,8 +1,6 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
 import * as navigation from '../util/navigation';
-import { navigateToTileSideLink } from '../util/navigation';
 import * as journals from './journal';
-import { waitForStablePage } from '../util/form';
 
 
 test.describe.configure({ mode: 'serial' });  // Required to ensure tests run in expected order and that beforeAll & afterAll only run once
@@ -12,7 +10,8 @@ test.describe('Save Manual Journals with Fake Data', () => {
     await navigation.navigateToHomePage(page, testInfo);
     await navigation.navigateToTile(page, 'General Accounting', testInfo);
     await navigation.navigateToTileLink(page, 'Journals', testInfo);
-    await navigateToTileSideLink(page, 'Create Journal', testInfo);
+    await navigation.setDataAccessSet(page, 'Global May Apr Ledger Set', testInfo)
+    await navigation.navigateToTileSideLink(page, 'Create Journal', testInfo);
   });
 
   const nRepeats = 1;

@@ -46,6 +46,77 @@ export async function waitForStablePage(page: Page) {
     });
 }
 
+export async function fieldByName(page: Page, name: string, 
+                                  value: string, fillType: string,
+                                  options: { fieldType?: string,
+                                             valueCheck?: string,
+                                             pageSection?: Locator, 
+                                             errorIfNoValue?: boolean,
+                                             errorIfNoField?: boolean } ) {
+
+    const errorIfNoValue = (options.errorIfNoValue) ? options.errorIfNoValue : false;
+    const errorIfNoField = (options.errorIfNoField) ? options.errorIfNoField : true;
+    const fieldType = (options.fieldType) ? options.fieldType : "textbox";
+
+    if (value == undefined) {
+        if (errorIfNoValue) {
+            throw Error(`Value wasn't provided for required field ${name}`)
+        } else {
+            return;
+        }
+    }
+
+    let field: Locator;
+    switch (fieldType) {
+        case "textbox":
+            field = (options.pageSection) ? options.pageSection.getByRole('textbox', { name: name, exact: true }) : 
+                                            page.getByRole('textbox', { name: name, exact: true });
+            break;
+        case "checkbox":
+            field = (options.pageSection) ? options.pageSection.getByRole('checkbox', { name: name, exact: true }) : 
+                                            page.getByRole('checkbox', { name: name, exact: true });
+            break;
+        default:
+            throw Error(`${fieldType} not recognised as a type of field in function fillCheckValue`)
+    }
+
+    try {
+        await expect(field).toBeVisible()
+    } catch (e) {
+        if (errorIfNoField) {
+            throw Error(`Form field for ${name} is not editable`)
+        }
+        return;
+    }
+
+    switch (fillType) {
+        case "fill":
+            await field.fill(value);
+            await field.blur();
+            break;
+        case "click":
+            await field.click();
+            const gridcell = page.getByRole('gridcell', { name: value, exact: true });
+            await expect(gridcell).toBeVisible();
+            await gridcell.click();
+    }
+
+    switch (options.valueCheck) {
+        case "value":
+            await expect(field).toHaveAttribute("value", value);
+            break;
+        case "value-wild":
+            const regex = new RegExp(`.*${value}.*`);
+            await expect(field).toHaveAttribute("value", regex);
+            break;
+        case "text":
+            await expect(field).toHaveText(value);
+            break;
+        case undefined:
+            break;
+    }
+}
+
 export async function fillTextboxByName(page: Page, name: string, value: string, 
                                         options: {pageSection?: Locator, 
                                                   errorIfNoValue?: boolean,
@@ -65,8 +136,13 @@ export async function fillTextboxByName(page: Page, name: string, value: string,
     const textBox = (options.pageSection) ? options.pageSection.getByRole('textbox', { name: name, exact: true }) : 
                                             page.getByRole('textbox', { name: name, exact: true });
 
-    if (errorIfNoField) {
-        await expect(textBox).toBeVisible();
+    try {
+        await expect(textBox).toBeVisible()
+    } catch (e) {
+        if (errorIfNoField) {
+            throw Error(`Form field for ${name} is not editable`)
+        }
+        return;
     }
 
     await textBox.fill(value);
@@ -93,8 +169,13 @@ export async function fillComboboxByName(page: Page, name: string, value: string
     const comboBox = (options.pageSection) ? options.pageSection.getByRole('combobox', { name: name, exact: true }) : 
                                                 page.getByRole('combobox', { name: name, exact: true });
 
-    if (errorIfNoField && !await comboBox.isVisible()) {
-        throw Error(`Form field for ${name} is not editable`)
+    try {
+        await expect(comboBox).toBeVisible()
+    } catch (e) {
+        if (errorIfNoField) {
+            throw Error(`Form field for ${name} is not editable`)
+        }
+        return;
     }
 
     await comboBox.fill(value);
@@ -121,8 +202,13 @@ export async function selectComboboxByName(page: Page, name: string, value: stri
     const comboBox = (options.pageSection) ? options.pageSection.getByRole('combobox', { name: name, exact: true }) : 
                                                 page.getByRole('combobox', { name: name, exact: true });
 
-    if (errorIfNoField && !await comboBox.isVisible()) {
-        throw Error(`Form field for ${name} is not editable`)
+    try {
+        await expect(comboBox).toBeVisible()
+    } catch (e) {
+        if (errorIfNoField) {
+            throw Error(`Form field for ${name} is not editable`)
+        }
+        return;
     }
 
     await comboBox.selectOption(value);
@@ -149,13 +235,19 @@ export async function clickTextboxByName(page: Page, name: string, value: string
     const textBox = (options.pageSection) ? options.pageSection.getByRole('textbox', { name: name, exact: true }) : 
                                             page.getByRole('textbox', { name: name, exact: true });
 
-    if (errorIfNoField && !await textBox.isVisible()) {
-        throw Error(`Form field for ${name} is not editable`)
+    try {
+        await expect(textBox).toBeVisible()
+    } catch (e) {
+        if (errorIfNoField) {
+            throw Error(`Form field for ${name} is not editable`)
+        }
+        return;
     }
 
     await textBox.click();
     await waitForStablePage(page);
     await page.getByRole('gridcell', { name: value, exact: true }).click();
+    await textBox.press("Enter");
     await textBox.blur();
     await waitForStablePage(page);
 }
@@ -179,8 +271,13 @@ export async function clickComboboxByName(page: Page, name: string, value: strin
     const comboBox = (options.pageSection) ? options.pageSection.getByRole('combobox', { name: name, exact: true }) : 
                                                  page.getByRole('combobox', { name: name, exact: true });
 
-    if (errorIfNoField && !await comboBox.isVisible()) {
-        throw Error(`Form field for ${name} is not editable`)
+    try {
+        await expect(comboBox).toBeVisible()
+    } catch (e) {
+        if (errorIfNoField) {
+            throw Error(`Form field for ${name} is not editable`)
+        }
+        return;
     }
 
     await comboBox.click();
@@ -193,7 +290,7 @@ export async function clickComboboxByName(page: Page, name: string, value: strin
 // Takes the name of a collapsible section of the form and returns the Locator object for
 // that section. This is useful if two fields have the same name but are in separate sections.
 export async function getSectionFromCollapse(page: Page, buttonTitle: string){
-  let collapseButtonLocator = await page.getByTitle(buttonTitle, { exact: true })
+  let collapseButtonLocator = page.getByTitle(buttonTitle, { exact: true });
   let collapseButtonId = await collapseButtonLocator.getAttribute("aria-controls");
 
   if (collapseButtonId == null) {
