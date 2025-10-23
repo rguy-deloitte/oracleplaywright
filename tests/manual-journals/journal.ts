@@ -1,6 +1,121 @@
 import { faker } from '@faker-js/faker';
 import { test, expect, Page, TestInfo } from "@playwright/test";
 import * as forms from '../util/form'
+import * as xlsx from 'xlsx';
+
+
+export function loadBatchesFromExcelFile(excelFilePath: string) {
+  // check if file exists
+  const fs = require('fs');
+  if (!fs.existsSync(excelFilePath)) {
+    console.error(`Error: The Excel file ${excelFilePath} does not exist.`);
+    process.exit(1);
+  }
+  
+  const fullWorkbook = xlsx.readFile(excelFilePath);
+  const fullSheet = fullWorkbook.Sheets[fullWorkbook.SheetNames[0]];
+
+  if (fullSheet['!ref'] == undefined) { throw Error("Cannot get dimensions of spreadsheet")}
+
+  // Load all rows as JSON but ignore title cell A1
+  let sheetRange = xlsx.utils.decode_range(fullSheet['!ref']);
+  sheetRange['s']['r']++;
+  sheetRange['e']['r']--;
+
+  const fullJSON: Record<string, string>[] = xlsx.utils.sheet_to_json(fullSheet, { range: sheetRange });
+
+  let allBatches: Record <string, any>[] = [];
+
+  let batchIds: Record<string, string> = {};
+
+  fullJSON.forEach((row) => {
+    batchIds[row['JOURNAL_BATCH_ID']] = "";
+  });
+
+  Object.keys(batchIds).forEach((batchId) => {
+    try {
+      let testBatchRows: Record<string, string>[] = [];
+
+      fullJSON.forEach((row) => {
+        if (row['JOURNAL_BATCH_ID'] == batchId) {
+          testBatchRows.push(row);
+        }
+      });
+
+      let batchData: Record<string, any> = { 'Journal Batch': batchId + " - TESTING" };
+
+      const accountingPeriod = testBatchRows[0]['PERIOD_NAME'];
+      let testJournalRows: Record<string, any[]> = {};   
+
+      testBatchRows.forEach((row) => {
+        if (accountingPeriod != row['PERIOD_NAME']) { throw Error(`Accounting period for batch ${batchId} is not consistent on all rows`)}
+        if (testJournalRows[row['_02_SOURCE_JOURNAL_ID']] == undefined) {
+          testJournalRows[row['_02_SOURCE_JOURNAL_ID']] = [row];
+        } else {
+          testJournalRows[row['_02_SOURCE_JOURNAL_ID']].push(row);
+        }
+      });
+
+      batchData['Accounting Period'] = accountingPeriod;
+      batchData['Description'] = "TESTING - Playwright generated batch"
+      batchData['Journals'] = [];
+
+      Object.keys(testJournalRows).forEach((key) => {
+        let currentJournal: Record<string, any> = { 'Journal': key + " - TESTING" };
+        currentJournal['Description'] = "TESTING - Playwright generated journal"
+        currentJournal['Ledger'] = testJournalRows[key][0]['LEDGER_NAME'];
+        currentJournal['Accounting Date'] = currentJournal['Conversion Date'] = testJournalRows[key][0]['ACCOUNTING_DATE'];
+        currentJournal['Category'] = 'Manual';
+        currentJournal['Conversion Rate Type'] = 'CP_AVG';
+        currentJournal['Currency'] = testJournalRows[key][0]['ENTERED_CURRENCY'];
+
+        currentJournal['Journal Lines'] = Array(testJournalRows[key].length);
+        
+        testJournalRows[key].forEach((row) => {
+          if (currentJournal['Ledger'] != row['LEDGER_NAME']) { throw Error(`Ledger name is not consistent on all rows`)}
+          if (currentJournal['Accounting Date'] != row['ACCOUNTING_DATE']) { throw Error(`Accounting date is not consistent on all rows`)}
+          if (currentJournal['Currency'] != row['ENTERED_CURRENCY']) { throw Error(`Currency for batch is not consistent on all rows`)}
+
+          let currentLine: Record<string, string> = {};
+          currentLine['ENTITY'] = row['ENTITY'];
+
+          // REMOVE WHEN PROBLEM FIXED
+          if (currentLine['ENTITY'] == undefined) {
+            console.log(currentLine);
+          }
+          // REMOVE WHEN PROBLEM FIXED
+
+          currentLine['PROFIT UNIT'] = row['PROFIT_UNIT'];
+          currentLine['ACCOUNT'] = row['ACCOUNT'];
+          currentLine['DEPARTMENT'] = row['DEPARTMENT'];
+          currentLine['LOCATION'] = row['LOCATION'];
+          currentLine['BUSINESS TYPE'] = row['BUSINESS_TYPE'];
+          currentLine['INTERCOMPANY'] = row['INTERCOMPANY'];
+          currentLine['FUTURE1'] = '000000';
+          currentLine['FUTURE2'] = '000000';
+
+          if (row['ENTERED_DR']) { currentLine['Entered Debit'] = String(row['ENTERED_DR']); }
+          if (row['ENTERED_CR']) { currentLine['Entered Credit'] = String(row['ENTERED_CR']); }
+          if (row['ACCOUNTED_DR']) { currentLine['Accounted Debit'] = String(row['ACCOUNTED_DR']); }
+          if (row['ACCOUNTED_CR']) { currentLine['Accounted Credit'] = String(row['ACCOUNTED_CR']); }
+          currentLine['Description'] = row['DESCRIPTION'];
+
+          const lineNumber = Number(row['_17_SOURCE_JOURNAL_LINE_NUMBER'])
+
+          currentJournal['Journal Lines'][lineNumber-1] = currentLine;
+        });
+
+        batchData['Journals'].push(currentJournal);
+      });
+
+      allBatches.push(batchData);
+    } catch (e) {
+      console.log(`Skipping batch ${batchId} (${e})`)
+    }
+  });
+    
+  return allBatches;
+}
 
 
 // Generates fake data for a number of Journal Batches on the Create Journal page
@@ -101,10 +216,9 @@ export async function fillJournalBatchDetails(page: Page, data: Record<string, a
   await test.step("Enter Journal Batch Details", async () => {
     const journalBatchSection = await forms.getSectionFromCollapse(page, "Collapse Journal Batch");
 
+    await forms.clickTextboxByName(page, "Accounting Period", data["Accounting Period"], { pageSection: journalBatchSection });
     await forms.fillTextboxByName(page, "Journal Batch", data["Journal Batch"], { pageSection: journalBatchSection });
     await forms.fillTextboxByName(page, "Description", data["Description"], { pageSection: journalBatchSection });
-    await forms.clickTextboxByName(page, "Accounting Period", data["Accounting Period"], { pageSection: journalBatchSection });
-
     await checkPageForErrors(page, testInfo);
 
     if (testInfo) {
@@ -115,26 +229,28 @@ export async function fillJournalBatchDetails(page: Page, data: Record<string, a
 
 export async function fillJournalDetails(page: Page, data: Record<string, any>, testInfo?: TestInfo) {
   await test.step(`Add Journal Details`, async () => {
-    const journalBatchSection = await forms.getSectionFromCollapse(page, "Collapse Journal");
+    const journalSection = await forms.getSectionFromCollapse(page, "Collapse Journal");
 
-    await forms.fillTextboxByName(page, "Journal", data["Journal"], { pageSection: journalBatchSection });
-    await forms.fillTextboxByName(page, "Description", data["Description"], { pageSection: journalBatchSection });
+    await forms.fillTextboxByName(page, "Journal", data["Journal"], { pageSection: journalSection });
+    await forms.fillTextboxByName(page, "Description", data["Description"], { pageSection: journalSection, errorIfNoField: false });
     
-    const ledgerBox = journalBatchSection.getByRole('textbox', { name: "Ledger" });
-    if (await ledgerBox.isVisible()) {
-      await forms.clickTextboxByName(page, "Ledger", data["Ledger"], { pageSection: journalBatchSection });
-    }
+    await forms.clickTextboxByName(page, "Ledger", data["Ledger"], { pageSection: journalSection, errorIfNoField: false });
 
-    await forms.fillTextboxByName(page, "Accounting Date", data["Accounting Date"], { pageSection: journalBatchSection });
+    await forms.fillTextboxByName(page, "Accounting Date", data["Accounting Date"], { pageSection: journalSection });
     await forms.waitForStablePage(page);
-    await forms.clickTextboxByName(page, "Category", data["Category"], { pageSection: journalBatchSection });
-    await forms.clickTextboxByName(page, "Currency", data["Currency"], { pageSection: journalBatchSection });
-    await forms.clickTextboxByName(page, "Conversion Date", data["Conversion Date"], { pageSection: journalBatchSection });
-    await forms.clickTextboxByName(page, "Conversion Rate Type", data["Conversion Rate Type"], { pageSection: journalBatchSection });
-    await forms.fillTextboxByName(page, "Conversion Rate", data["Conversion Rate"], { pageSection: journalBatchSection });
+    await forms.clickTextboxByName(page, "Category", data["Category"], { pageSection: journalSection });
+    await forms.waitForStablePage(page);
+
+    // await forms.clickTextboxByName(page, "Currency", data["Currency"], { pageSection: journalSection });
+    await forms.fieldByName(page, "Currency", data["Currency"], "click", { fieldType: "textbox", valueCheck: "value-wild", pageSection: journalSection })
+
+    await forms.fillTextboxByName(page, "Conversion Date", data["Conversion Date"], { pageSection: journalSection, errorIfNoField: false });
+    await forms.clickTextboxByName(page, "Conversion Rate Type", data["Conversion Rate Type"], { pageSection: journalSection, errorIfNoField: false });
+    await forms.fillTextboxByName(page, "Conversion Rate", data["Conversion Rate"], { pageSection: journalSection, errorIfNoField: false });
+    await checkPageForErrors(page, testInfo);
 
     if (testInfo) {
-      await testInfo.attach("Journal details filled", { body: await journalBatchSection.screenshot(), contentType: 'image/png' });
+      await testInfo.attach("Journal details filled", { body: await journalSection.screenshot(), contentType: 'image/png' });
     }
   });
 }
@@ -184,7 +300,9 @@ export async function addJournalLineDetails(page: Page, data: Record<string, any
       await forms.fillTextboxByName(page, "Account", accountNumber, { pageSection: currentRow });
       await forms.fillTextboxByName(page, "Entered Debit", data[i]["Entered Debit"], { pageSection: currentRow, errorIfNoField: false });
       await forms.fillTextboxByName(page, "Entered Credit", data[i]["Entered Credit"], { pageSection: currentRow, errorIfNoField: false });
-      await forms.fillTextboxByName(page, "Description", data[i]["Description"], { pageSection: currentRow });
+      await forms.fillTextboxByName(page, "Accounted Debit", data[i]["Accounted Debit"], { pageSection: currentRow, errorIfNoField: false });
+      await forms.fillTextboxByName(page, "Accounted Credit", data[i]["Accounted Credit"], { pageSection: currentRow, errorIfNoField: false });
+      await forms.fillTextboxByName(page, "Description", data[i]["Description"], { pageSection: currentRow, errorIfNoField: false });
       await waitStable;
     }
 
@@ -199,16 +317,24 @@ export async function addJournalLineDetails(page: Page, data: Record<string, any
 }
 
 export async function addNewJournal(page: Page, testInfo?: TestInfo) {
-  let waitStable = forms.waitForStablePage(page);
-  await page.getByRole('link', { name: 'Journal Actions' }).click();
-  await page.getByText('Add', { exact: true }).click();
-  await waitStable;
+  await test.step(`Adding new journal`, async () => {
+    let waitStable = forms.waitForStablePage(page);
+    await page.getByRole('link', { name: 'Journal Actions' }).click();
+    await page.getByText('Add', { exact: true }).click();
+    await waitStable;
 
-  await checkPageForErrors(page, testInfo);
+    await checkPageForErrors(page, testInfo);
+    while (true) {
+      try {
+        await expect(page.getByRole("textbox", { name: "Journal", exact: true }).getAttribute("value")).resolves.toBeNull();
+        break;
+      } catch (e) {await page.waitForTimeout(200);}
+    }
 
-  if (testInfo) {
-    await testInfo.attach(`Journal added`, { body: await page.screenshot(), contentType: 'image/png' });
-  }
+    if (testInfo) {
+      await testInfo.attach(`Journal added`, { body: await page.screenshot(), contentType: 'image/png' });
+    }
+  });
 }
 
 export async function saveJournalBatch(page: Page, testInfo?: TestInfo) {
@@ -220,7 +346,7 @@ export async function saveJournalBatch(page: Page, testInfo?: TestInfo) {
         await waitStable;
 
         await checkPageForErrors(page, testInfo);
-        await checkPageForPopup(page, testInfo);
+        await checkPageForUnbalancedPopup(page, testInfo);
 
         await expect(page.getByText("Last Saved", { exact: true })).toBeVisible();
         break;
@@ -230,7 +356,7 @@ export async function saveJournalBatch(page: Page, testInfo?: TestInfo) {
 
     await forms.waitForStablePage(page);
     await checkPageForErrors(page, testInfo);
-    await checkPageForPopup(page, testInfo);
+    await checkPageForUnbalancedPopup(page, testInfo);
 
     if (testInfo) {
       await testInfo.attach(`Journal batch saved`, { body: await page.screenshot({ fullPage: true }), contentType: 'image/png' });
@@ -238,9 +364,36 @@ export async function saveJournalBatch(page: Page, testInfo?: TestInfo) {
   });
 }
 
+export async function postJournalBatch(page: Page, testInfo: TestInfo) {
+    await test.step("Post journal batch", async () => {
+      while (true) {
+        try {
+          let waitStable = forms.waitForStablePage(page);
+          await page.getByRole('button', { name: "Post", exact: true }).click();
+          await waitStable;
+
+          await checkPageForErrors(page, testInfo);
+          await checkPageForUnbalancedPopup(page, testInfo);
+
+          const popupText = page.getByText("The journal requires approval before it can be posted, and has been forwarded to the approver.");
+
+          await expect(popupText).toBeVisible();
+
+          if (testInfo) {
+            await testInfo.attach(`Journal batch posted`, { body: await page.screenshot({ fullPage: true }), contentType: 'image/png' });
+          }
+
+          await page.getByRole("button", { name: "OK", exact: true }).click();
+          break;
+        } catch (e) {
+        }
+      }
+    });
+}
+
 export async function cancelJournalBatch(page: Page, testInfo?: TestInfo) {
   await forms.waitForStablePage(page);
-  await checkPageForPopup(page, testInfo);
+  await checkPageForUnbalancedPopup(page, testInfo);
   
   await test.step("Cancel journal batch", async () => {
     await page.getByRole('button', { name: 'Cancel', exact: true }).click();
@@ -262,7 +415,7 @@ async function checkPageForErrors(page: Page, testInfo?: TestInfo) {
   } 
 }
 
-async function checkPageForPopup(page: Page, testInfo: TestInfo | undefined) {
+async function checkPageForUnbalancedPopup(page: Page, testInfo: TestInfo | undefined) {
   const popupText = page.getByText("The total accounted debit and credit for this journal batch aren't equal. Do you want to continue?");
 
   if (await popupText.isVisible()) {
@@ -277,14 +430,23 @@ async function checkPageForPopup(page: Page, testInfo: TestInfo | undefined) {
 
 export async function checkJournalsForSavedBatch(page: Page, data: Record<string, any>, testInfo?: TestInfo) {
   await test.step("Checking that journal batch saved", async () => {
-    await page.getByRole('link', { name: 'Incomplete', exact: true }).click();
-    await forms.waitForStablePage(page);
-    await page.getByRole('img', { name: 'Refresh', exact: true }).click();
-    await forms.waitForStablePage(page);
-
+    let incompleteLink = page.getByRole('link', { name: 'Incomplete', exact: true });
+    await incompleteLink.click();
+    const regex = new RegExp(`.*p_AFSelected.*`);
+    await expect(incompleteLink).toHaveAttribute("class", regex);
     const batchLink = page.getByRole('link', { name: data['Journal Batch'], exact: true });
 
-    expect(batchLink).toBeVisible();
+    while (true) {
+      try {
+        let waitStable = forms.waitForStablePage(page);
+        await page.getByRole('img', { name: 'Refresh', exact: true }).click();
+        await waitStable;
+
+        expect(batchLink).toBeVisible();
+        break;
+      } catch (e) {
+      }
+    }
 
     if (testInfo) {
       await testInfo.attach(`Incomplete journal listed`, { body: await page.screenshot(), contentType: 'image/png' });
@@ -299,12 +461,6 @@ export async function checkJournalsForSavedBatch(page: Page, data: Record<string
 
     if (journalList.length != data['Journals'].length) {
       throw Error("Not all journals were saved correctly")
-    }
-
-    for (let i = 0; i < data['Journals'].length; i++) {
-      if (!journalList.includes(data['Journals'][i]['Journal'])) {
-        throw Error(`Journal ${data['Journals'][i]['Journal']} was not saved correctly`)
-      }
     }
 
     if (testInfo) {

@@ -13,3 +13,4 @@ node_modules/
 /excel-data-files/tmp/*
 tests/.auth/auth-state.json
 allure-results/
+~$*.xlsx
