@@ -64,10 +64,10 @@ export default defineConfig({
     },
 
     {
-      name: 'All',
+      name: 'Other',
       use: {  ...devices['Desktop Edge'], 
       storageState: './tests/.auth/auth-state.json',},
-      testMatch: /.*.spec.ts/g,
+      testMatch: /^(?!.*\b(account-receivables|account-payables|cash-management|fixed-assets|manual-journals|translation|reporting)\b).*.spec.ts$/g,
       dependencies: ['configuration'],
     },
 
