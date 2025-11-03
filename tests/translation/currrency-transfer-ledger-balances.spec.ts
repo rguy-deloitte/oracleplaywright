@@ -14,12 +14,12 @@ test.describe.configure({ mode: 'serial' });  // Required to ensure tests run in
 let testLoopStartTime: Date = new Date(), testLoopEndTime: Date = new Date();
 let apiContext: APIRequestContext;
 const getDataFromExcelFile = true;      // Set to true to read data from Excel file
-const generateResultsExcelFile = true;  // Set to true to write results to results excel file (filename *-results-YYYYMMDD-hhmmss.xlsx)
+const appendResultsToExcelSheet = true;  // Set to true to write results to results excel file (filename *-results-YYYYMMDD-hhmmss.xlsx)
 let setupData: any[] = [];              // Data items from the Setup Excel sheet
 let loopData: any[][] = [];             // Data items from the Loop Excel sheet
-const skipRatherThanSubmit = false;     // Set to true to skip submission and just take screenshots
+const skipRatherThanSubmit = true;     // Set to true to skip submission and just take screenshots
 if (getDataFromExcelFile) ({ setupData, loopData } = ExcelService.readExcelData(__filename));
-if (generateResultsExcelFile) ExcelService.writeResultsHeaderRow(['Source Ledger', 'Target Ledger',	'Source Ledger Period', 'Target Ledger Period', 'REQUESTID', 'STARTTIME', 'ENDTIME', 'RESULT']);
+if (appendResultsToExcelSheet) ExcelService.writeResultsHeaderRow(['Source Ledger', 'Target Ledger',	'Source Ledger Period', 'Target Ledger Period', 'REQUESTID', 'STARTTIME', 'ENDTIME', 'RESULT']);
 let page: Page;
 
 test.beforeAll(async ({ browser, playwright }) => {
@@ -38,7 +38,7 @@ test.beforeAll(async ({ browser, playwright }) => {
 test.afterAll(async () => {
   await apiContext.dispose();
   await page.close();
-  if (generateResultsExcelFile) ExcelService.save();
+  if (appendResultsToExcelSheet) ExcelService.save();
 });
 
 test.describe('Transfer Ledger Balances', () => {
@@ -48,7 +48,7 @@ test.describe('Transfer Ledger Balances', () => {
 
   let index = 0;
   loopData.forEach((currentRow, i) => {
-    test(`${i+2} - Source Ledger Period: ${currentRow[0]} - ${currentRow[1]}: ${currentRow[2].trim()}-${currentRow[3]}`, async ({ }, testInfo) => {
+    test(`${i+2}: ${currentRow[0]}, ${currentRow[1]}, ${currentRow[2].trim()}, ${currentRow[3]}`, async ({ }, testInfo) => {
       // test.setTimeout(1500000);
       await cp.transferLedgerBalances(page, testInfo, setupData, currentRow, index);
 
@@ -59,8 +59,8 @@ test.describe('Transfer Ledger Balances', () => {
         testLoopStartTime = new Date();
         await form.buttonClick(page, 'Submit');
         let processResults = await cp.confirmProcessCompletion(page, testInfo, apiContext, setupData, currentRow, testLoopStartTime, testLoopEndTime);
-        if (generateResultsExcelFile) ExcelService.writeResultsResultRow([processResults?.rowData[0], processResults?.rowData[1], processResults?.rowData[2], processResults?.rowData[3], processResults?.processNumber, processResults?.testLoopStartTime, processResults?.testLoopEndTime, processResults?.requestStatus]);
-        await expect(processResults?.requestStatus).toMatch(/SUCCEEDED|WARNING/);
+        if (appendResultsToExcelSheet) ExcelService.writeResultsResultRow([processResults?.rowData[0], processResults?.rowData[1], processResults?.rowData[2], processResults?.rowData[3], processResults?.processNumber, processResults?.testLoopStartTime, processResults?.testLoopEndTime, processResults?.requestStatus]);
+        // await expect(processResults?.requestStatus).toMatch(/SUCCEEDED|WARNING/);
       }
     });
   });

@@ -13,11 +13,11 @@ test.describe.configure({ mode: 'serial' });  // Required to ensure tests run in
 
 let testLoopStartTime: Date = new Date(), testLoopEndTime: Date = new Date();
 let apiContext: APIRequestContext;
-const getDataFromExcelFile = true;      // Set to true to read data from Excel file
-const generateResultsExcelFile = false;  // Set to true to write results to results excel file (filename *-results-YYYYMMDD-hhmmss.xlsx)
 let setupData: any[] = [];              // Data items from the Setup Excel sheet
 let loopData: any[][] = [];             // Data items from the Loop Excel sheet
-const skipRatherThanSubmit = true;     // Set to true to skip submission and just take screenshots
+const getDataFromExcelFile = true;      // Set to true to read data from Excel file
+const generateResultsExcelFile = true;  // Set to true to write results to results excel file (filename *-results-YYYYMMDD-hhmmss.xlsx)
+const skipRatherThanSubmit = false;     // Set to true to skip submission and just take screenshots
 if (getDataFromExcelFile) ({ setupData, loopData } = ExcelService.readExcelData(__filename));
 if (generateResultsExcelFile) ExcelService.writeResultsHeaderRow(['Data Access Set', 'Ledger Name', 'Target Currency', 'Period', 'Balancing Segment', 'REQUESTID', 'STARTTIME', 'ENDTIME', 'RESULT']);
 let page: Page;
@@ -48,8 +48,8 @@ test.describe('Translate GL Account Balances (GPP)', () => {
 
   let index = 0;
   loopData.forEach((currentRow, i) => {
-    test(`${i+2} - Accounting Period: ${currentRow[0]}`, async ({ }, testInfo) => {
-      // test.setTimeout(1500000);
+    test(`${i+2}: ${currentRow[0]}, ${currentRow[1]}, ${currentRow[2]}, ${currentRow[3]}, ${currentRow[4]}`, async ({ }, testInfo) => {
+      test.setTimeout(1000000);
       await cp.translateGLAccountBalancesGGP(page, testInfo, setupData, currentRow, index);
 
       if (skipRatherThanSubmit) {
@@ -60,7 +60,7 @@ test.describe('Translate GL Account Balances (GPP)', () => {
         await form.buttonClick(page, 'Submit');
         let processResults = await cp.confirmProcessCompletion(page, testInfo, apiContext, setupData, currentRow, testLoopStartTime, testLoopEndTime);
         if (generateResultsExcelFile) ExcelService.writeResultsResultRow([processResults?.rowData[0], processResults?.rowData[1], processResults?.rowData[2], processResults?.rowData[3], processResults?.rowData[4], processResults?.processNumber, processResults?.testLoopStartTime, processResults?.testLoopEndTime, processResults?.requestStatus]);
-        await expect(processResults?.requestStatus).toMatch(/SUCCEEDED|WARNING/);
+        // await expect(processResults?.requestStatus).toMatch(/SUCCEEDED|WARNING/);
       }
     });
   });

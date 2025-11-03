@@ -33,7 +33,7 @@ export async function translateGLAccountBalancesGGP(page: any, testInfo: any, se
 }
 
 export async function transferLedgerBalances(page: any, testInfo: any, setupData: any[], rowData: any[], i: number) {
-    await form.comboFillAndEnter(page, 'Source Ledger', rowData[0]);
+    await form.comboFillAndEnter(page, 'Source Ledger', rowData[0], 'Search and Select: Source Ledger');
     await form.comboFillAndEnter(page, 'Target Ledger', rowData[1]);
     await form.setFormSelectValue(page, 'Chart of Accounts Mapping', setupData[4]);
     await form.setFormSelectValue(page, 'Amount Type', setupData[5]);
@@ -56,7 +56,7 @@ export async function confirmProcessCompletion(page: any, testInfo: any, apiCont
     if (processNumber) {
         let jobStatus, jobStatusJson, jobRequestStatus = '';
         do {
-            await page.waitForTimeout(2000);
+            await page.waitForTimeout(10000);
             jobStatus = await apiContext.get('./erpintegrations', { params: `?finder=ESSJobStatusRF;requestId=${processNumber}` })
                 .catch((e) => console.log('Error with api call:', e));
             jobStatusJson = await jobStatus.json();

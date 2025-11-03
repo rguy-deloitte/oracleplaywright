@@ -312,11 +312,21 @@ export async function clickButtonByName(page: Page, name: string, pageSection?: 
 }
 
 // Needs rewriting to fit new function format
-export async function comboFillAndEnter(page: any, labelText: string, value: string) {
+export async function comboFillAndEnter(page: any, labelText: string, value: string, popupSelectionScreenTitle?: string) {
     const comboBox = await page.getByRole('combobox', { name: labelText, exact: true });
     await comboBox.click();
     await comboBox.fill(value);
     await comboBox.press('Enter');
+
+    await waitForStablePage(page);
+    if (popupSelectionScreenTitle) {
+        // check if a further pup up selection screen has appeared
+        const popupSelectionScreen = await page.$(`text='${popupSelectionScreenTitle}'`);
+        if (popupSelectionScreen?.isVisible()) {
+            await page.getByText(value, { exact: true }).click();
+            await page.getByRole('button', { name: 'OK' }).click();
+        }
+    }
 }
 
 // Needs rewriting to fit new function format
