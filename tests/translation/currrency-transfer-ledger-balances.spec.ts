@@ -14,12 +14,20 @@ test.describe.configure({ mode: 'serial' });  // Required to ensure tests run in
 let testLoopStartTime: Date = new Date(), testLoopEndTime: Date = new Date();
 let apiContext: APIRequestContext;
 const getDataFromExcelFile = true;      // Set to true to read data from Excel file
-const appendResultsToExcelSheet = true;  // Set to true to write results to results excel file (filename *-results-YYYYMMDD-hhmmss.xlsx)
-let setupData: any[] = [];              // Data items from the Setup Excel sheet
-let loopData: any[][] = [];             // Data items from the Loop Excel sheet
+const appendResultsToExcelSheet = false; // Set to true to write results to results excel file (filename *-results-YYYYMMDD-hhmmss.xlsx)
 const skipRatherThanSubmit = true;     // Set to true to skip submission and just take screenshots
-if (getDataFromExcelFile) ({ setupData, loopData } = ExcelService.readExcelData(__filename));
-if (appendResultsToExcelSheet) ExcelService.writeResultsHeaderRow(['Source Ledger', 'Target Ledger',	'Source Ledger Period', 'Target Ledger Period', 'REQUESTID', 'STARTTIME', 'ENDTIME', 'RESULT']);
+
+let setupData: Record<string, any> = {};   // Data items from the Setup Excel sheet as a Record
+let loopData: Record<string, any>[] = [];  // Data items from the Loop Excel sheet as a Record
+
+if (getDataFromExcelFile) ({ setupData, loopData } = ExcelService.readExcelToRecords(__filename));
+// For compatibility with currency functions which can be updated to use Records, use arrays for now
+// UPDATE CURRENCY AND REPLACE THIS
+let setupArray = [setupData['url'], setupData['newProcessName'], setupData['Source Ledger'], 
+                  setupData['Target Ledger'], setupData['CoA Mapping'], setupData['Amount Type'], 
+                  setupData['Run Journal Import'], setupData['Create Summary Journals'], setupData['Run Automatic Posting']];
+
+// if (appendResultsToExcelSheet) ExcelService.writeResultsHeaderRow(['Source Ledger', 'Target Ledger',	'Source Ledger Period', 'Target Ledger Period', 'REQUESTID', 'STARTTIME', 'ENDTIME', 'RESULT']);
 let page: Page;
 
 test.beforeAll(async ({ browser, playwright }) => {
@@ -38,30 +46,43 @@ test.beforeAll(async ({ browser, playwright }) => {
 test.afterAll(async () => {
   await apiContext.dispose();
   await page.close();
-  if (appendResultsToExcelSheet) ExcelService.save();
+  //if (appendResultsToExcelSheet) ExcelService.save();
 });
 
 test.describe('Transfer Ledger Balances', () => {
   test.beforeEach(async ({ }, testInfo) => {
-    cp.navigate(page, testInfo, setupData);
+    await cp.navigate(page, testInfo, setupArray);
   });
 
   let index = 0;
   loopData.forEach((currentRow, i) => {
-    test(`${i+2}: ${currentRow[0]}, ${currentRow[1]}, ${currentRow[2].trim()}, ${currentRow[3]}`, async ({ }, testInfo) => {
-      // test.setTimeout(1500000);
-      await cp.transferLedgerBalances(page, testInfo, setupData, currentRow, index);
+    if (currentRow['RESULT'] == undefined || currentRow['RESULT'] == "") {
+      test(`${currentRow['ID']}: ${currentRow['Source Ledger']}, ${currentRow['Target ledger']}, ${currentRow['Source Ledger Period'].trim()}, ${currentRow['Target Ledger Period']}`, async ({ }, testInfo) => {
+        // test.setTimeout(1500000);
+        if (appendResultsToExcelSheet) ExcelService.updateValue('RESULT', i, 'STARTED');
 
-      if (skipRatherThanSubmit) {
-        await testInfo.attach(`${currentRow[0]} Final Screen (cancelled)...`, { body: await page.screenshot(), contentType: 'image/png' });
-        await form.buttonClick(page, 'Cancel');
-      } else {
-        testLoopStartTime = new Date();
-        await form.buttonClick(page, 'Submit');
-        let processResults = await cp.confirmProcessCompletion(page, testInfo, apiContext, setupData, currentRow, testLoopStartTime, testLoopEndTime);
-        if (appendResultsToExcelSheet) ExcelService.writeResultsResultRow([processResults?.rowData[0], processResults?.rowData[1], processResults?.rowData[2], processResults?.rowData[3], processResults?.processNumber, processResults?.testLoopStartTime, processResults?.testLoopEndTime, processResults?.requestStatus]);
-        // await expect(processResults?.requestStatus).toMatch(/SUCCEEDED|WARNING/);
-      }
-    });
+        // For compatibility with currency functions which can be updated to use Records, use arrays for now
+        // UPDATE CURRENCY AND REPLACE THIS
+        let currentArray = [currentRow['Source Ledger'], currentRow['Target ledger'], currentRow['Source Ledger Period'], currentRow['Target Ledger Period']]
+
+        await cp.transferLedgerBalances(page, testInfo, setupArray, currentArray, index);
+
+        if (skipRatherThanSubmit) {
+          await testInfo.attach(`${currentArray[0]} Final Screen (cancelled)...`, { body: await page.screenshot(), contentType: 'image/png' });
+          await form.buttonClick(page, 'Cancel');
+        } else {
+          testLoopStartTime = new Date();
+          await form.buttonClick(page, 'Submit');
+          let processResults = await cp.confirmProcessCompletion(page, testInfo, apiContext, setupArray, currentArray, testLoopStartTime, testLoopEndTime);
+          //if (appendResultsToExcelSheet) ExcelService.writeResultsResultRow([processResults?.rowData[0], processResults?.rowData[1], processResults?.rowData[2], processResults?.rowData[3], processResults?.processNumber, processResults?.testLoopStartTime, processResults?.testLoopEndTime, processResults?.requestStatus]);
+          if (appendResultsToExcelSheet) {
+            ExcelService.updateValue('REQUESTID', i, processResults.processNumber, 'n');
+            ExcelService.updateValue('STARTTIME', i, processResults.testLoopStartTime, 'd');
+            ExcelService.updateValue('ENDTIME', i, processResults.testLoopEndTime, 'd');
+            ExcelService.updateValue('RESULT', i, processResults.requestStatus);
+          }
+        }
+      });
+    };
   });
 });

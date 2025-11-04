@@ -1,5 +1,6 @@
 import * as xlsx from 'xlsx';
-const path = require('path');
+//const path = require('path');
+import * as path from 'path';
 
 export class ExcelService {
     static workbook: xlsx.WorkBook;
@@ -63,4 +64,64 @@ export class ExcelService {
         xlsx.writeFile(this.workbook, this.fileNameAndPath + '-results-' + dateTimeFormatted + '.xlsx');
     }
 
+    static readExcelToRecords(testFileName: string) {
+        let setupData: Record<string, any> = {};
+        let loopData: Record<string, any>[] = [];
+
+        const filename = path.basename(testFileName, '.spec.ts') + '.xlsx';
+        this.fileNameAndPath = path.join(__dirname, '..', '..', 'excel-data-files', filename);
+
+        // check if file exists
+        const fs = require('fs');
+        if (!fs.existsSync(this.fileNameAndPath)) {
+            console.error(`Error: The Excel file ${this.fileNameAndPath} does not exist.`);
+            process.exit(1);
+        }
+
+        this.workbook = xlsx.readFile(this.fileNameAndPath);
+
+        // Check that the workbook contains a sheet called 'Setup'
+        if (this.workbook.Sheets['Setup'] == undefined) { throw Error("Excel workbook does not contain a sheet called 'Setup'") };
+
+        // Read the rows of the Setup sheet and add column A as keys and B as values
+        const setupSheet = xlsx.utils.sheet_to_json(this.workbook.Sheets['Setup'], { raw: false, header: 1 }) as any[][];
+        setupSheet.forEach(row => {
+            setupData[row[0]] = row[1];
+        });
+
+        // Check that the workbook contains a sheet called 'Loop'
+        if (this.workbook.Sheets['Loop'] == undefined) { throw Error("Excel workbook does not contain a sheet called 'Loop'") };
+
+        // Convert the headers and rows into JSON objects
+        loopData = xlsx.utils.sheet_to_json(this.workbook.Sheets['Loop']);
+
+        return { setupData, loopData };
+    }
+
+    static updateValue(columnName: string, rowIndex: number, value: any, type: string = 's') {
+        let loopSheet = this.workbook.Sheets['Loop'];
+        let columnIndex = 0;
+
+        for (let i = 0; i < 1000; i++) {
+            let headerCell = loopSheet[xlsx.utils.encode_cell({ c: i, r: 0 })];
+            
+            if (headerCell != undefined && headerCell['v'] == columnName) {
+                columnIndex = i;
+                break;
+            }
+
+            if (i == 999) { throw Error(`Column '${columnName}' does not exist`)}
+        }
+
+        const updateCell = xlsx.utils.encode_cell({ c: columnIndex, r: rowIndex + 1 });
+        loopSheet[updateCell] = { 't': type,
+                                  'v': value,
+                                  'r': `<t>${value}</t>`,
+                                  'h': value,
+                                  'w': value }
+
+        this.workbook.Sheets['Loop'] = loopSheet;
+        
+        xlsx.writeFile(this.workbook, this.fileNameAndPath);
+    }
 }
