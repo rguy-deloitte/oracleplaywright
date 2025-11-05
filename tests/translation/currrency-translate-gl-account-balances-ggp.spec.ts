@@ -13,13 +13,14 @@ test.describe.configure({ mode: 'serial' });  // Required to ensure tests run in
 
 let testLoopStartTime: Date = new Date(), testLoopEndTime: Date = new Date();
 let apiContext: APIRequestContext;
-let setupData: any[] = [];              // Data items from the Setup Excel sheet
-let loopData: any[][] = [];             // Data items from the Loop Excel sheet
 const getDataFromExcelFile = true;      // Set to true to read data from Excel file
-const generateResultsExcelFile = true;  // Set to true to write results to results excel file (filename *-results-YYYYMMDD-hhmmss.xlsx)
-const skipRatherThanSubmit = false;     // Set to true to skip submission and just take screenshots
-if (getDataFromExcelFile) ({ setupData, loopData } = ExcelService.readExcelData(__filename));
-if (generateResultsExcelFile) ExcelService.writeResultsHeaderRow(['Data Access Set', 'Ledger Name', 'Target Currency', 'Period', 'Balancing Segment', 'REQUESTID', 'STARTTIME', 'ENDTIME', 'RESULT']);
+const appendResultsToExcelSheet = true; // Set to true to write results to results excel file (filename *-results-YYYYMMDD-hhmmss.xlsx)
+const skipRatherThanSubmit = true;      // Set to true to skip submission and just take screenshots
+
+let setupData: Record<string, any> = {};   // Data items from the Setup Excel sheet as a Record
+let loopData: Record<string, any>[] = [];  // Data items from the Loop Excel sheet as a Record
+if (getDataFromExcelFile) ({ setupData, loopData } = ExcelService.readExcelToRecords(__filename));
+
 let page: Page;
 
 test.beforeAll(async ({ browser, playwright }) => {
@@ -38,7 +39,6 @@ test.beforeAll(async ({ browser, playwright }) => {
 test.afterAll(async () => {
   await apiContext.dispose();
   await page.close();
-  if (generateResultsExcelFile) ExcelService.save();
 });
 
 test.describe('Translate GL Account Balances (GPP)', () => {
@@ -47,21 +47,37 @@ test.describe('Translate GL Account Balances (GPP)', () => {
   });
 
   let index = 0;
+  let runNeedsCounting = true;
   loopData.forEach((currentRow, i) => {
-    test(`${i+2}: ${currentRow[0]}, ${currentRow[1]}, ${currentRow[2]}, ${currentRow[3]}, ${currentRow[4]}`, async ({ }, testInfo) => {
-      test.setTimeout(1000000);
-      await cp.translateGLAccountBalancesGGP(page, testInfo, setupData, currentRow, index);
+    if (currentRow['RESULT'] == undefined || currentRow['RESULT'] == "") {
+      test(`${currentRow['ID']}: ${currentRow['DATA_ACCESS_SET']}, ${currentRow['LEDGER_NAME']}, ${currentRow['TARGET_CURRENCY']}, ${currentRow['PERIOD']}, ${currentRow['BALANCING_SEGMENT']}`, async ({ }, testInfo) => {
+        test.setTimeout(1000000);
 
-      if (skipRatherThanSubmit) {
-        await testInfo.attach(`${currentRow[0]} Final Screen (cancelled)...`, { body: await page.screenshot(), contentType: 'image/png' });
-        await form.buttonClick(page, 'Cancel');
-      } else {
-        testLoopStartTime = new Date();
-        await form.buttonClick(page, 'Submit');
-        let processResults = await cp.confirmProcessCompletion(page, testInfo, apiContext, setupData, currentRow, testLoopStartTime, testLoopEndTime);
-        if (generateResultsExcelFile) ExcelService.writeResultsResultRow([processResults?.rowData[0], processResults?.rowData[1], processResults?.rowData[2], processResults?.rowData[3], processResults?.rowData[4], processResults?.processNumber, processResults?.testLoopStartTime, processResults?.testLoopEndTime, processResults?.requestStatus]);
-        // await expect(processResults?.requestStatus).toMatch(/SUCCEEDED|WARNING/);
-      }
-    });
+        if (appendResultsToExcelSheet) {
+          ExcelService.updateLoopRow(i, { 'RESULT': { value: 'STARTED', format: 's' } });
+          if (runNeedsCounting) {
+            const previousCount = (setupData['Test Attempt Count']) ? Number(setupData['Test Attempt Count']) : 0;
+            setupData['Test Attempt Count'] = previousCount+1;
+            ExcelService.updateSetupSheet(setupData);
+            runNeedsCounting = false;
+          }
+        }
+
+        await cp.translateGLAccountBalancesGGP(page, testInfo, setupData, currentRow, index);
+
+        if (skipRatherThanSubmit) {
+          await testInfo.attach(`${currentRow['DATA ACCESS SET']} Final Screen (cancelled)...`, { body: await page.screenshot(), contentType: 'image/png' });
+          await form.buttonClick(page, 'Cancel');
+        } else {
+          testLoopStartTime = new Date();
+          await form.buttonClick(page, 'Submit');
+          let processResults = await cp.confirmProcessCompletion(page, testInfo, apiContext, setupData, currentRow, testLoopStartTime, testLoopEndTime);
+          if (appendResultsToExcelSheet) ExcelService.updateLoopRow(i, { 'REQUESTID': { value: processResults.processNumber, format: 'n' },
+                                                                         'STARTTIME': { value: processResults.testLoopStartTime, format: 'd' },
+                                                                         'ENDTIME': { value: processResults.testLoopEndTime, format: 'd' },
+                                                                         'RESULT': { value: processResults.requestStatus, format: 's' } });
+        }
+      });
+    };
   });
 });
