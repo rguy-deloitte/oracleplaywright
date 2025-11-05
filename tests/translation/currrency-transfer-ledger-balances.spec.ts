@@ -14,12 +14,13 @@ test.describe.configure({ mode: 'serial' });  // Required to ensure tests run in
 let testLoopStartTime: Date = new Date(), testLoopEndTime: Date = new Date();
 let apiContext: APIRequestContext;
 const getDataFromExcelFile = true;      // Set to true to read data from Excel file
-const appendResultsToExcelSheet = true;  // Set to true to write results to results excel file (filename *-results-YYYYMMDD-hhmmss.xlsx)
-let setupData: any[] = [];              // Data items from the Setup Excel sheet
-let loopData: any[][] = [];             // Data items from the Loop Excel sheet
-const skipRatherThanSubmit = true;     // Set to true to skip submission and just take screenshots
-if (getDataFromExcelFile) ({ setupData, loopData } = ExcelService.readExcelData(__filename));
-if (appendResultsToExcelSheet) ExcelService.writeResultsHeaderRow(['Source Ledger', 'Target Ledger',	'Source Ledger Period', 'Target Ledger Period', 'REQUESTID', 'STARTTIME', 'ENDTIME', 'RESULT']);
+const appendResultsToExcelSheet = true; // Set to true to write results to results excel file (filename *-results-YYYYMMDD-hhmmss.xlsx)
+const skipRatherThanSubmit = true;      // Set to true to skip submission and just take screenshots
+
+let setupData: Record<string, any> = {};   // Data items from the Setup Excel sheet as a Record
+let loopData: Record<string, any>[] = [];  // Data items from the Loop Excel sheet as a Record
+if (getDataFromExcelFile) ({ setupData, loopData } = ExcelService.readExcelToRecords(__filename));
+
 let page: Page;
 
 test.beforeAll(async ({ browser, playwright }) => {
@@ -38,30 +39,44 @@ test.beforeAll(async ({ browser, playwright }) => {
 test.afterAll(async () => {
   await apiContext.dispose();
   await page.close();
-  if (appendResultsToExcelSheet) ExcelService.save();
 });
 
-test.describe('Transfer Ledger Balances', () => {
   test.beforeEach(async ({ }, testInfo) => {
-    cp.navigate(page, testInfo, setupData);
+    await cp.navigate(page, testInfo, setupData);
   });
 
   let index = 0;
+  let runNeedsCounting = true;
   loopData.forEach((currentRow, i) => {
-    test(`${i+2}: ${currentRow[0]}, ${currentRow[1]}, ${currentRow[2].trim()}, ${currentRow[3]}`, async ({ }, testInfo) => {
-      // test.setTimeout(1500000);
-      await cp.transferLedgerBalances(page, testInfo, setupData, currentRow, index);
+    if (currentRow['RESULT'] == undefined || currentRow['RESULT'] == "") {
+      test(`${currentRow['ID']}: ${currentRow['Source Ledger']}, ${currentRow['Target ledger']}, ${currentRow['Source Ledger Period'].trim()}, ${currentRow['Target Ledger Period']}`, async ({ }, testInfo) => {
+        // test.setTimeout(1500000);
 
-      if (skipRatherThanSubmit) {
-        await testInfo.attach(`${currentRow[0]} Final Screen (cancelled)...`, { body: await page.screenshot(), contentType: 'image/png' });
-        await form.buttonClick(page, 'Cancel');
-      } else {
-        testLoopStartTime = new Date();
-        await form.buttonClick(page, 'Submit');
-        let processResults = await cp.confirmProcessCompletion(page, testInfo, apiContext, setupData, currentRow, testLoopStartTime, testLoopEndTime);
-        if (appendResultsToExcelSheet) ExcelService.writeResultsResultRow([processResults?.rowData[0], processResults?.rowData[1], processResults?.rowData[2], processResults?.rowData[3], processResults?.processNumber, processResults?.testLoopStartTime, processResults?.testLoopEndTime, processResults?.requestStatus]);
-        // await expect(processResults?.requestStatus).toMatch(/SUCCEEDED|WARNING/);
-      }
-    });
+        if (appendResultsToExcelSheet) {
+          ExcelService.updateLoopRow(i, { 'RESULT': { value: 'STARTED', format: 's' } });
+          if (runNeedsCounting) {
+            const previousCount = (setupData['Test Attempt Count']) ? Number(setupData['Test Attempt Count']) : 0;
+            setupData['Test Attempt Count'] = previousCount+1;
+            ExcelService.updateSetupSheet(setupData);
+            runNeedsCounting = false;
+          }
+        }
+
+        await cp.transferLedgerBalances(page, testInfo, setupData, currentRow, index);
+
+        if (skipRatherThanSubmit) {
+          await testInfo.attach(`${currentRow['Source Ledger']} Final Screen (cancelled)...`, { body: await page.screenshot(), contentType: 'image/png' });
+          await form.buttonClick(page, 'Cancel');
+        } else {
+          testLoopStartTime = new Date();
+          await form.buttonClick(page, 'Submit');
+          let processResults = await cp.confirmProcessCompletion(page, testInfo, apiContext, setupData, currentRow, testLoopStartTime, testLoopEndTime);
+
+          if (appendResultsToExcelSheet) ExcelService.updateLoopRow(i, { 'REQUESTID': { value: processResults.processNumber, format: 'n' },
+                                                                         'STARTTIME': { value: processResults.testLoopStartTime, format: 'd' },
+                                                                         'ENDTIME': { value: processResults.testLoopEndTime, format: 'd' },
+                                                                         'RESULT': { value: processResults.requestStatus, format: 's' } });
+        }
+      });
+    };
   });
-});
